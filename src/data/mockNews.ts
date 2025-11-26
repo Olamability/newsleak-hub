@@ -10,6 +10,7 @@ export interface NewsArticle {
   link?: string;
   content?: string;
   pubDate?: string;
+  favicon?: string; // site logo
 }
 
 export const mockNews: NewsArticle[] = [
