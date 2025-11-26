@@ -7,6 +7,9 @@ export interface NewsArticle {
   likes: number;
   comments: number;
   category: string;
+  link?: string;
+  content?: string;
+  pubDate?: string;
 }
 
 export const mockNews: NewsArticle[] = [
