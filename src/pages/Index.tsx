@@ -7,14 +7,12 @@ import { mockNews, NewsArticle } from "@/data/mockNews";
 import { loadArticles, loadFeeds, saveArticles } from "@/lib/feedStorage";
 import { fetchAllFeeds } from "@/lib/rssParser";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, Settings, Lock } from "lucide-react";
+import { RefreshCw, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { isAuthenticated } = useAuth();
   const [news, setNews] = useState<NewsArticle[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true);
@@ -106,19 +104,10 @@ const Index = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => navigate(isAuthenticated ? "/admin" : "/login")}
+            onClick={() => navigate("/admin")}
           >
-            {isAuthenticated ? (
-              <>
-                <Settings className="h-4 w-4 mr-2" />
-                Manage Feeds
-              </>
-            ) : (
-              <>
-                <Lock className="h-4 w-4 mr-2" />
-                Admin Login
-              </>
-            )}
+            <Settings className="h-4 w-4 mr-2" />
+            Manage Feeds
           </Button>
         </div>
 
@@ -126,18 +115,9 @@ const Index = () => {
           {news.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground mb-4">No articles yet</p>
-              <Button onClick={() => navigate(isAuthenticated ? "/admin" : "/login")}>
-                {isAuthenticated ? (
-                  <>
-                    <Settings className="h-4 w-4 mr-2" />
-                    Add RSS Feeds
-                  </>
-                ) : (
-                  <>
-                    <Lock className="h-4 w-4 mr-2" />
-                    Admin Login
-                  </>
-                )}
+              <Button onClick={() => navigate("/admin")}>
+                <Settings className="h-4 w-4 mr-2" />
+                Add RSS Feeds
               </Button>
             </div>
           ) : (
