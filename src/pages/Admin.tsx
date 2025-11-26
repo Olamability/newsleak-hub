@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Trash2, RefreshCw } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, RefreshCw, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,12 +10,14 @@ import { Header } from "@/components/Header";
 import { RSSFeed, fetchAllFeeds } from "@/lib/rssParser";
 import { loadFeeds, saveFeeds, addFeed, deleteFeed, updateFeed, saveArticles } from "@/lib/feedStorage";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 const categories = ["For you", "Football", "Entertainment", "Politics", "Sports", "Technology", "Business", "Lifestyle", "Fashion&Beauty"];
 
 const Admin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { logout } = useAuth();
   const [feeds, setFeeds] = useState<RSSFeed[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [newFeed, setNewFeed] = useState({
@@ -93,20 +95,39 @@ const Admin = () => {
     }
   };
 
+  const handleLogout = () => {
+    logout();
+    toast({
+      title: "Logged out",
+      description: "You have been logged out successfully"
+    });
+    navigate("/");
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
       
       <main className="max-w-4xl mx-auto px-4 py-6">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigate("/")}
-          className="mb-4"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to feed
-        </Button>
+        <div className="flex items-center justify-between mb-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate("/")}
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to feed
+          </Button>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleLogout}
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+            Logout
+          </Button>
+        </div>
 
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
