@@ -8,7 +8,13 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Admin password - In production, this should be properly secured with backend authentication
+// ⚠️ SECURITY WARNING: This is a DEMO implementation only!
+// In production, this MUST be replaced with:
+// 1. Server-side authentication with secure password hashing
+// 2. JWT tokens or secure session cookies (HTTP-only)
+// 3. Rate limiting and brute force protection
+// 4. HTTPS for all communications
+// 5. Environment variables for credentials
 const ADMIN_PASSWORD = 'admin123';
 const AUTH_STORAGE_KEY = 'newsHub_admin_auth';
 

@@ -20,7 +20,8 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate a small delay for better UX
+    // Note: This is a client-side only demo. In production, 
+    // authentication should be handled server-side.
     setTimeout(() => {
       const success = login(password);
       
