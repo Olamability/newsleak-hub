@@ -1,8 +1,12 @@
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/components/AuthProvider";
 
-export const Header = () => {
+import { useEffect, useState } from "react";
+
+export const Header = ({ siteName, favicon }: { siteName?: string; favicon?: string }) => {
+  const { user, signOut, loading } = useAuth();
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-14 items-center justify-between px-4 max-w-7xl mx-auto">
@@ -10,16 +14,14 @@ export const Header = () => {
           <Button variant="ghost" size="icon" className="h-9 w-9 block md:hidden">
             <Menu className="h-5 w-5" />
           </Button>
-          <h1 className="text-xl font-bold text-primary">Newsleak</h1>
-        </div>
-        <nav>
-          <Link
-            to="/admin"
-            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-          >
-            Admin
+          {favicon && (
+            <img src={favicon} alt="site icon" className="w-6 h-6 rounded mr-2" />
+          )}
+          <Link to="/" className="text-xl font-bold text-primary hover:underline focus:underline outline-none">
+            {siteName || "Newsleak"}
           </Link>
-        </nav>
+        </div>
+        {/* No admin or logout controls for regular users */}
       </div>
     </header>
   );

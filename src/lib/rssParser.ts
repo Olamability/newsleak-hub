@@ -10,11 +10,11 @@ export interface RSSFeed {
 }
 
 // CORS proxy for RSS feeds (frontend limitation workaround)
-const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
+const CORS_PROXY = 'https://corsproxy.io/?';
 
 export const parseRSSFeed = async (feedUrl: string): Promise<any[]> => {
   try {
-    const proxyUrl = `${CORS_PROXY}${encodeURIComponent(feedUrl)}`;
+  const proxyUrl = `${CORS_PROXY}${feedUrl}`;
     const response = await fetch(proxyUrl);
     const xmlText = await response.text();
 
@@ -47,7 +47,7 @@ export const parseRSSFeed = async (feedUrl: string): Promise<any[]> => {
       if ((!image || image.includes('unsplash.com/photo-1504711434969-e33886168f5c')) && link) {
         // Try to fetch og:image from the news source page
         try {
-          const pageHtml = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(link)}`).then(res => res.text());
+          const pageHtml = await fetch(`${CORS_PROXY}${link}`).then(res => res.text());
           const ogMatch = pageHtml.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"'>]+)["']/i);
           if (ogMatch) image = ogMatch[1];
           else {
@@ -114,9 +114,8 @@ const extractImage = (item: Element): string => {
   // Try to find a data-src image (lazy loaded)
   const dataImgMatch = html.match(/<img[^>]+data-src=["']([^"'>]+)["']/i);
   if (dataImgMatch) return dataImgMatch[1];
-  // Default placeholder, log warning
-  console.warn('No image found for RSS item, using fallback image.');
-  return `https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400&auto=format&fit=crop`;
+  // No image found, return empty string
+  return '';
 };
 
 
