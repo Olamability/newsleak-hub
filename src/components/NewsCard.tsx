@@ -1,11 +1,10 @@
 
 import { MessageCircle, ThumbsUp, Bookmark, BookmarkCheck } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useNavigate, useLocation } from "react-router-dom";
-import { isBookmarked, addBookmark, removeBookmark } from "../lib/bookmarks";
-import { isLocalBookmarked, addLocalBookmark, removeLocalBookmark } from "@/utils/localBookmarks";
-import { likeArticle, hasUserLiked, getArticleLikes } from "@/lib/articleAnalytics";
+import { useIsBookmarked, useToggleBookmark } from "@/hooks/useBookmark";
+import { useArticleLikeStatus, useToggleLike } from "@/hooks/useLike";
 import { Card } from "@/components/ui/card";
 import { DEFAULT_ARTICLE_THUMBNAIL } from "@/lib/constants";
 
@@ -40,114 +39,47 @@ export const NewsCard = (props: NewsCardProps) => {
     article
   } = props;
 
-  const [bookmarked, setBookmarked] = useState(false);
-  const [liked, setLiked] = useState(false);
-  const [likesCount, setLikesCount] = useState(initialLikes);
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [showLoginMsg, setShowLoginMsg] = useState(false);
 
-  useEffect(() => {
-    const checkBookmark = async () => {
-      if (id && user) {
-        try {
-          const result = await isBookmarked(id, user.id);
-          setBookmarked(result);
-        } catch {
-          setBookmarked(false);
-        }
-      } else if (id) {
-        setBookmarked(isLocalBookmarked(id));
-      } else {
-        setBookmarked(false);
-      }
-    };
-    checkBookmark();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, user]);
-
-  useEffect(() => {
-    const checkLike = async () => {
-      if (id) {
-        try {
-          const [isLiked, count] = await Promise.all([
-            hasUserLiked(id, user?.id),
-            getArticleLikes(id)
-          ]);
-          setLiked(isLiked);
-          setLikesCount(count);
-        } catch {
-          setLiked(false);
-        }
-      }
-    };
-    checkLike();
-  }, [id, user]);
+  // Use optimized hooks for bookmark and like status
+  const { data: isBookmarked = false } = useIsBookmarked(id, user?.id);
+  const { data: likeStatus = { isLiked: false, count: initialLikes || 0 } } = useArticleLikeStatus(id, user?.id);
+  
+  const toggleBookmark = useToggleBookmark(id, user?.id);
+  const toggleLike = useToggleLike(id, user?.id);
 
   const handleBookmark = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!id) return;
-    if (user) {
-      if (bookmarked) {
-        try {
-          await removeBookmark(id, user.id);
-          setBookmarked(false);
-        } catch {}
-      } else {
-        try {
-          if (article) {
-            await addBookmark(article, user.id);
-          } else {
-            await addBookmark({
-              id,
-              source,
-              title,
-              image,
-              category: article?.category || "",
-              link,
-              favicon,
-              published: '',
-            }, user.id);
-          }
-          setBookmarked(true);
-        } catch {}
-      }
-    } else {
-      if (bookmarked) {
-        removeLocalBookmark(id);
-        setBookmarked(false);
-      } else {
-        if (article) {
-          addLocalBookmark(article);
-        } else {
-          addLocalBookmark({
-            id,
-            source,
-            title,
-            image,
-            category: article?.category || "",
-            link,
-            favicon,
-            published: '',
-          });
-        }
-        setBookmarked(true);
-      }
-    }
+    
+    const articleData = article || {
+      id,
+      source,
+      title,
+      image,
+      category: article?.category || "",
+      link,
+      favicon,
+      published: '',
+    };
+    
+    toggleBookmark.mutate({ article: articleData, isCurrentlyBookmarked: isBookmarked });
   };
 
   const handleLike = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!id) return;
     
-    // try {
-    //   await likeArticle(id, user?.id);
-    //   setLiked(!liked);
-    //   setLikesCount(liked ? likesCount - 1 : likesCount + 1);
-    // } catch (error) {
-    //   console.error('Failed to like article:', error);
-    // }
+    try {
+      await likeArticle(id, user?.id);
+      setLiked(!liked);
+      setLikesCount(liked ? likesCount - 1 : likesCount + 1);
+    } catch (error) {
+      console.error('Failed to like article:', error);
+    }
   };
 
   // Keyboard and screen reader accessibility
@@ -170,11 +102,11 @@ export const NewsCard = (props: NewsCardProps) => {
       {/* Bookmark button top right */}
       <button
         className="absolute top-3 right-3 z-10 p-1 rounded-full bg-background/80 hover:bg-primary/10 focus:bg-primary/20 border border-border shadow transition-colors"
-        aria-label={bookmarked ? "Remove bookmark" : "Add bookmark"}
+        aria-label={isBookmarked ? "Remove bookmark" : "Add bookmark"}
         onClick={handleBookmark}
         tabIndex={0}
       >
-          {bookmarked ? <BookmarkCheck className="w-5 h-5 text-primary" /> : <Bookmark className="w-5 h-5 text-muted-foreground" />}
+          {isBookmarked ? <BookmarkCheck className="w-5 h-5 text-primary" /> : <Bookmark className="w-5 h-5 text-muted-foreground" />}
       </button>
       {showLoginMsg && (
         <div className="absolute top-12 right-3 bg-destructive text-white text-xs rounded px-2 py-1 shadow z-20">
@@ -185,7 +117,6 @@ export const NewsCard = (props: NewsCardProps) => {
         <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
           <span>{time}</span>
           <span>·</span>
-          {/* Favicon removed to prevent broken requests */}
           <span className="font-medium">{source}</span>
         </div>
         <h3 className="text-base font-medium leading-snug line-clamp-3 mb-2">
@@ -193,12 +124,12 @@ export const NewsCard = (props: NewsCardProps) => {
         </h3>
         <div className="flex items-center gap-4 text-xs text-muted-foreground mt-2">
           <button 
-            className={`flex items-center gap-1 hover:text-primary focus:text-primary transition-colors ${liked ? 'text-primary' : ''}`}
+            className={`flex items-center gap-1 hover:text-primary focus:text-primary transition-colors ${likeStatus.isLiked ? 'text-primary' : ''}`}
             aria-label="Like"
             onClick={handleLike}
           >
-            <ThumbsUp className={`h-3.5 w-3.5 ${liked ? 'fill-current' : ''}`} />
-            <span>{likesCount}</span>
+            <ThumbsUp className={`h-3.5 w-3.5 ${likeStatus.isLiked ? 'fill-current' : ''}`} />
+            <span>{likeStatus.count}</span>
           </button>
           <button className="flex items-center gap-1 hover:text-primary focus:text-primary transition-colors" aria-label="Comments">
             <MessageCircle className="h-3.5 w-3.5" />
@@ -213,13 +144,6 @@ export const NewsCard = (props: NewsCardProps) => {
           className="w-full h-full object-cover"
           loading="lazy"
         />
-        {favicon && (
-          <img
-            src={favicon}
-            className="w-8 h-8 rounded-full absolute bottom-1 left-1 border-2 border-white shadow"
-            loading="lazy"
-          />
-        )}
       </div>
     </Card>
   );

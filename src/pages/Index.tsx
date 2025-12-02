@@ -3,11 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { CategoryNav } from "@/components/CategoryNav";
 import { NewsCard } from "@/components/NewsCard";
-// import { NewsArticle } from "@/data/mockNews";
-import { loadNews } from "@/lib/newsStorage";
-import { supabase } from "@/lib/supabaseClient";
-import { useAuth } from "@/components/AuthProvider";
-import { fetchAllFeeds } from "@/lib/rssParser";
+import { useEnrichedNews } from "@/hooks/useNews";
 
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -32,71 +28,14 @@ const categories = [
 const Index = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [news, setNews] = useState<any[]>([]);
-  // const { user } = useAuth();
+  const { data: news = [], isLoading: loading, error } = useEnrichedNews();
   const [visibleCount, setVisibleCount] = useState(10); // Number of articles to show initially
   const loaderRef = useRef<HTMLDivElement | null>(null);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true);
   const [activeCategory, setActiveCategory] = useState<string>(categories[0]);
 
 
   // Request notification permission on mount
   useEffect(() => {
-    setLoading(true);
-    (async () => {
-      try {
-        // Fetch all feeds (site info)
-        const { data: feeds } = await supabase.from('rss_feeds').select('*');
-        const feedsById = (feeds || []).reduce((acc, feed) => {
-          acc[feed.id] = feed;
-          return acc;
-        }, {});
-        // Fetch news articles
-        const loaded = await loadNews();
-        // Map loaded articles to include required fields for NewsCard
-        const mapped = loaded.map(article => {
-          const feed = feedsById[article.feed_id];
-          // Compute time string robustly
-          let time = '';
-          if (article.published) {
-            time = getTimeAgo(article.published);
-          } else if (article.pubDate) {
-            time = getTimeAgo(article.pubDate);
-          } else if (article.time) {
-            time = article.time;
-          }
-          return {
-            ...article,
-            source: (feed && feed.source) || article.source || "Unknown Source",
-            favicon: (feed && feed.favicon) || article.favicon || '',
-            category: article.category || (feed && feed.category) || "General",
-            time,
-            likes: article.likes || 0,
-            comments: article.comments || 0,
-            content: article.summary || article.content || '',
-            image: article.image || '',
-          };
-        });
-        setNews(mapped);
-      } catch (e) {
-        setNews([]);
-      } finally {
-        setLoading(false);
-      }
-    })();
-
-// Helper to get time ago string
-function getTimeAgo(published: string) {
-  const date = new Date(published);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-  if (diffHours < 1) return 'Just now';
-  if (diffHours < 24) return `${diffHours}h`;
-  return `${Math.floor(diffHours / 24)}d`;
-}
     requestNotificationPermission();
   }, []);
 
@@ -144,7 +83,7 @@ function getTimeAgo(published: string) {
       <main className="max-w-4xl mx-auto px-2 sm:px-4">
         {/* Removed '+ Add RSS Feed' button for public users */}
         <div className="divide-y divide-border">
-          {loading || isRefreshing ? (
+          {loading ? (
             Array.from({ length: 5 }).map((_, i) => (
               <div key={i} className="flex gap-4 p-4">
                 <Skeleton className="w-24 h-24 rounded-lg shrink-0" />

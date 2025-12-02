@@ -1,80 +1,18 @@
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { CategoryNav } from "@/components/CategoryNav";
 import { NewsCard } from "@/components/NewsCard";
-import { loadNews } from "@/lib/newsStorage";
+import { useEnrichedNews } from "@/hooks/useNews";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TrendingUp } from "lucide-react";
-import { supabase } from "@/lib/supabaseClient";
 
 const Trending = () => {
   const navigate = useNavigate();
-  const [trendingNews, setTrendingNews] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: allNews = [], isLoading: loading } = useEnrichedNews();
 
-  useEffect(() => {
-    const loadTrendingNews = async () => {
-      setLoading(true);
-      try {
-        // Get all news articles
-        const allArticles = await loadNews();
-        
-        // Get feeds info
-        const { data: feeds } = await supabase.from('rss_feeds').select('*');
-        const feedsById = (feeds || []).reduce((acc: any, feed: any) => {
-          acc[feed.id] = feed;
-          return acc;
-        }, {});
-
-        // For now, we'll show the most recent articles as "trending"
-        // In production, this would use view counts, likes, etc.
-        const trending = allArticles
-          .slice(0, 20)
-          .map(article => {
-            const feed = feedsById[article.feed_id];
-            let time = '';
-            if (article.published) {
-              time = getTimeAgo(article.published);
-            } else if (article.pubDate) {
-              time = getTimeAgo(article.pubDate);
-            } else if (article.time) {
-              time = article.time;
-            }
-            
-            return {
-              ...article,
-              source: (feed && feed.source) || article.source || "Unknown Source",
-              favicon: (feed && feed.favicon) || article.favicon || '',
-              category: article.category || (feed && feed.category) || "General",
-              time,
-              likes: 0,
-              comments: 0,
-              content: article.summary || article.content || '',
-              image: article.image || '',
-            };
-          });
-
-        setTrendingNews(trending);
-      } catch (error) {
-        console.error("Failed to load trending news:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadTrendingNews();
-  }, []);
-
-  function getTimeAgo(published: string) {
-    const date = new Date(published);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    if (diffHours < 1) return 'Just now';
-    if (diffHours < 24) return `${diffHours}h`;
-    return `${Math.floor(diffHours / 24)}d`;
-  }
+  // For now, we'll show the most recent articles as "trending"
+  // In production, this would use view counts, likes, etc.
+  const trendingNews = allNews.slice(0, 20);
 
   return (
     <div className="min-h-screen bg-background">

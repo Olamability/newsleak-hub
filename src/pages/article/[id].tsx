@@ -1,24 +1,10 @@
-import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { loadNews } from '@/lib/newsStorage';
+import { useArticle } from '@/hooks/useNews';
 import CommentBox from '@/components/CommentBox';
 
 export default function ArticleDetail() {
   const { id } = useParams();
-  const [article, setArticle] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    (async () => {
-      setLoading(true);
-      try {
-        const articles = await loadNews();
-        setArticle(articles.find((a: any) => a.id === id));
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [id]);
+  const { data: article, isLoading: loading } = useArticle(id);
 
   if (loading) return <div className="p-8">Loading...</div>;
   if (!article) return <div className="p-8">Article not found.</div>;
