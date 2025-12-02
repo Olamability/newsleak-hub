@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { HEADER_HEIGHT_PX } from "@/lib/constants";
 
 const categories = [
   "Latest",
@@ -21,7 +22,7 @@ interface CategoryNavProps {
 
 export const CategoryNav = ({ activeCategory, setActiveCategory }: CategoryNavProps) => {
   return (
-    <div className="sticky top-14 z-40 bg-background border-b border-border">
+    <div className="sticky z-40 bg-background border-b border-border" style={{ top: `${HEADER_HEIGHT_PX}px` }}>
       <div className="flex items-center gap-2 px-4 py-3 max-w-7xl mx-auto">
         <Button
           variant="ghost"
