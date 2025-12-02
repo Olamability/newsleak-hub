@@ -4,6 +4,7 @@ import { ArrowLeft, Share2, Facebook, Twitter } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/Header";
+import { DEFAULT_ARTICLE_IMAGE } from "@/lib/constants";
 
 import { useEffect, useState } from "react";
 import { loadNews } from "@/lib/newsStorage";
@@ -165,7 +166,7 @@ const ArticleDetail = () => {
           </div>
           <div className="w-full aspect-video rounded-lg overflow-hidden mb-6 bg-muted flex items-center justify-center">
             <img
-              src={article.image || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&auto=format&fit=crop'}
+              src={article.image || DEFAULT_ARTICLE_IMAGE}
               alt={article.title}
               className="w-full h-full object-cover"
               loading="lazy"

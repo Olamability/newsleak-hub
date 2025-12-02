@@ -7,6 +7,7 @@ import { isBookmarked, addBookmark, removeBookmark } from "../lib/bookmarks";
 import { isLocalBookmarked, addLocalBookmark, removeLocalBookmark } from "@/utils/localBookmarks";
 import { likeArticle, hasUserLiked, getArticleLikes } from "@/lib/articleAnalytics";
 import { Card } from "@/components/ui/card";
+import { DEFAULT_ARTICLE_THUMBNAIL } from "@/lib/constants";
 
 interface NewsCardProps {
   source: string;
@@ -209,7 +210,7 @@ export const NewsCard = (props: NewsCardProps) => {
       </div>
       <div className="w-24 h-24 shrink-0 rounded-lg overflow-hidden bg-muted flex items-center justify-center relative">
         <img
-          src={image || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400&auto=format&fit=crop'}
+          src={image || DEFAULT_ARTICLE_THUMBNAIL}
           alt={title}
           className="w-full h-full object-cover"
           loading="lazy"
