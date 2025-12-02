@@ -4,6 +4,7 @@ import { ArrowLeft, Share2, Facebook, Twitter } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/Header";
+import { DEFAULT_ARTICLE_IMAGE } from "@/lib/constants";
 
 import { useEffect, useState } from "react";
 import { loadNews } from "@/lib/newsStorage";
@@ -163,16 +164,14 @@ const ArticleDetail = () => {
               {article.title}
             </h1>
           </div>
-          {article.image && (
-            <div className="w-full aspect-video rounded-lg overflow-hidden mb-6 bg-muted flex items-center justify-center">
-              <img
-                src={article.image}
-                alt={article.title}
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </div>
-          )}
+          <div className="w-full aspect-video rounded-lg overflow-hidden mb-6 bg-muted flex items-center justify-center">
+            <img
+              src={article.image || DEFAULT_ARTICLE_IMAGE}
+              alt={article.title}
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+          </div>
           <div className="prose max-w-none mb-8">
             {/* Show only a preview/snippet, not full article, and render HTML safely */}
             {(() => {
