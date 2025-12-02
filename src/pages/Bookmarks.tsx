@@ -3,6 +3,7 @@ import { Header } from "@/components/Header";
 import { NewsCard } from "@/components/NewsCard";
 import { getBookmarks, removeBookmark } from "@/lib/bookmarks";
 import { getLocalBookmarks, removeLocalBookmark } from "@/utils/localBookmarks";
+import { useArticleLikes } from "@/hooks/useBatchedData";
 import { useAuth } from "@/components/AuthProvider";
 import { useNavigate } from "react-router-dom";
 
@@ -10,6 +11,10 @@ const Bookmarks = () => {
   const [bookmarks, setBookmarks] = useState([]);
   const { user } = useAuth();
   const navigate = useNavigate();
+  
+  // Batch fetch likes for bookmarked articles
+  const articleIds = bookmarks.map((article: any) => article.id);
+  const { data: batchedLikes = {} } = useArticleLikes(articleIds);
 
   useEffect(() => {
     if (user) {
@@ -45,6 +50,7 @@ const Bookmarks = () => {
             bookmarks.map((article: any) => (
               <div key={article.id} className="relative group">
                 <NewsCard
+                  id={article.id}
                   source={article.source}
                   time={article.time}
                   title={article.title}
@@ -54,6 +60,9 @@ const Bookmarks = () => {
                   favicon={article.favicon}
                   content={article.content}
                   link={article.link}
+                  article={article}
+                  batchedLikes={batchedLikes[article.id]}
+                  batchedBookmark={true}
                   onClick={() => navigate(`/article/${article.id}`)}
                 />
                 <button
