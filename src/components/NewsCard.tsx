@@ -68,12 +68,9 @@ export const NewsCard = (props: NewsCardProps) => {
   // Get the user identifier for checking likes
   const userIdentifier = useMemo(() => getUserIdentifier(user?.id), [user?.id]);
 
-  // Use batched data if available, otherwise fall back to individual queries
-  // Only fetch individually if batched data was NOT provided (undefined, not falsy)
-  const shouldFetchIndividually = batchedLikes === undefined && batchedBookmark === undefined;
-  
-  const { data: isBookmarkedFetch } = useIsBookmarked(id, user?.id, { enabled: shouldFetchIndividually && !!id });
-  const { data: likeStatusFetch } = useArticleLikeStatus(id, user?.id, { enabled: shouldFetchIndividually && !!id });
+  // Fetch individually only if batched data is not provided
+  const { data: isBookmarkedFetch } = useIsBookmarked(id, user?.id, { enabled: batchedBookmark === undefined && !!id });
+  const { data: likeStatusFetch } = useArticleLikeStatus(id, user?.id, { enabled: batchedLikes === undefined && !!id });
   
   // Use batched data if available, otherwise use fetched data
   const isBookmarked = batchedBookmark !== undefined ? batchedBookmark : (isBookmarkedFetch || false);
@@ -105,7 +102,7 @@ export const NewsCard = (props: NewsCardProps) => {
     toggleBookmark.mutate({ article: articleData, isCurrentlyBookmarked: isBookmarked });
   };
 
-  const handleLike = async (e: React.MouseEvent) => {
+  const handleLike = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!id) return;
     
