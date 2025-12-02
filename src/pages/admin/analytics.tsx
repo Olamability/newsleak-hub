@@ -7,6 +7,7 @@ import { getAdminSession, adminSignOut } from '@/lib/adminAuth';
 import { fetchFeeds } from '@/lib/rssFetcher';
 import { supabase } from '@/lib/supabaseClient';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
 import { 
   BarChart3, 
   Newspaper, 
@@ -32,6 +33,7 @@ interface AnalyticsData {
 
 export default function AdminAnalyticsDashboard() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [analytics, setAnalytics] = useState<AnalyticsData>({
     totalArticles: 0,
     totalFeeds: 0,
@@ -128,8 +130,16 @@ export default function AdminAnalyticsDashboard() {
     try {
       await fetchFeeds();
       await loadAnalytics();
+      toast({
+        title: "Success",
+        description: "Feeds refreshed successfully",
+      });
     } catch (error) {
-      alert('Failed to fetch feeds');
+      toast({
+        title: "Error",
+        description: "Failed to fetch feeds",
+        variant: "destructive",
+      });
     } finally {
       setFetching(false);
     }
@@ -224,10 +234,6 @@ export default function AdminAnalyticsDashboard() {
             <Button onClick={handleFetchFeeds} disabled={fetching}>
               <RefreshCw className={`h-4 w-4 mr-2 ${fetching ? 'animate-spin' : ''}`} />
               {fetching ? 'Fetching Feeds...' : 'Refresh Feeds'}
-            </Button>
-            <Button variant="outline" onClick={() => navigate('/admin/add-feed')}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add New Feed
             </Button>
           </CardContent>
         </Card>

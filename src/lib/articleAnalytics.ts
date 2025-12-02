@@ -25,30 +25,44 @@ export async function getTrendingArticles(limit: number = 10): Promise<any[]> {
     const twentyFourHoursAgo = new Date();
     twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
 
-    const { data, error } = await supabase
+    // Get all views from the last 24 hours
+    const { data: viewsData, error } = await supabase
       .from('article_views')
-      .select('article_id, count')
-      .gte('viewed_at', twentyFourHoursAgo.toISOString())
-      .order('count', { ascending: false })
-      .limit(limit);
+      .select('article_id')
+      .gte('viewed_at', twentyFourHoursAgo.toISOString());
 
     if (error) throw error;
 
-    // Get full article details for trending article IDs
-    if (!data || data.length === 0) return [];
+    if (!viewsData || viewsData.length === 0) return [];
 
-    const articleIds = data.map((item: any) => item.article_id);
+    // Count views per article in client
+    const viewsByArticle = viewsData.reduce((acc: any, view: any) => {
+      acc[view.article_id] = (acc[view.article_id] || 0) + 1;
+      return acc;
+    }, {});
+
+    // Get top article IDs
+    const topArticleIds = Object.entries(viewsByArticle)
+      .sort((a: any, b: any) => b[1] - a[1])
+      .slice(0, limit)
+      .map(([id]) => id);
+
+    if (topArticleIds.length === 0) return [];
+
+    // Get full article details for trending article IDs
     const { data: articles, error: articlesError } = await supabase
       .from('news_articles')
       .select('*')
-      .in('id', articleIds);
+      .in('id', topArticleIds);
 
     if (articlesError) throw articlesError;
 
     // Sort articles by view count
     const articlesMap = new Map(articles?.map(a => [a.id, a]) || []);
-    return data
-      .map((item: any) => articlesMap.get(item.article_id))
+    return Object.entries(viewsByArticle)
+      .sort((a: any, b: any) => b[1] - a[1])
+      .slice(0, limit)
+      .map(([id]) => articlesMap.get(id))
       .filter(Boolean);
   } catch (error) {
     console.error('Failed to get trending articles:', error);
@@ -127,7 +141,14 @@ export async function hasUserLiked(articleId: string, userId?: string): Promise<
 }
 
 function generateAnonId(): string {
-  const id = Math.random().toString(36).substring(2, 15);
+  // Use crypto.randomUUID if available, otherwise fallback
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    const id = crypto.randomUUID();
+    localStorage.setItem('anon_id', id);
+    return id;
+  }
+  // Fallback for older browsers
+  const id = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
   localStorage.setItem('anon_id', id);
   return id;
 }
