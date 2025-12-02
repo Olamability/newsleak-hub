@@ -1,18 +1,27 @@
 import { useNavigate } from "react-router-dom";
+import { useMemo } from "react";
 import { Header } from "@/components/Header";
 import { CategoryNav } from "@/components/CategoryNav";
 import { NewsCard } from "@/components/NewsCard";
 import { useEnrichedNews } from "@/hooks/useNews";
+import { useArticleLikes, useBookmarks } from "@/hooks/useBatchedData";
+import { useAuth } from "@/components/AuthProvider";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TrendingUp } from "lucide-react";
 
 const Trending = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { data: allNews = [], isLoading: loading } = useEnrichedNews();
 
   // For now, we'll show the most recent articles as "trending"
   // In production, this would use view counts, likes, etc.
   const trendingNews = allNews.slice(0, 20);
+  
+  // Batch fetch likes and bookmarks for trending articles
+  const articleIds = useMemo(() => trendingNews.map(article => article.id), [trendingNews]);
+  const { data: batchedLikes = {} } = useArticleLikes(articleIds);
+  const { data: batchedBookmarks = {} } = useBookmarks(articleIds, user?.id);
 
   return (
     <div className="min-h-screen bg-background">
@@ -64,6 +73,8 @@ const Trending = () => {
                     content={article.content}
                     link={article.link}
                     article={article}
+                    batchedLikes={batchedLikes[article.id]}
+                    batchedBookmark={batchedBookmarks[article.id]}
                     onClick={() => navigate(`/article/${article.id}`)}
                   />
                 </div>

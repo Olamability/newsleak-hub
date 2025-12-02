@@ -13,10 +13,13 @@ export function useArticleLikes(articleIds: string[]) {
       
       const { data, error } = await supabase
         .from('article_likes')
-        .select('article_id, user_id')
+        .select('article_id, user_identifier')
         .in('article_id', articleIds);
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching batched likes:', error);
+        throw error;
+      }
       
       // Group by article_id
       const likesByArticle: Record<string, { count: number; userIds: string[] }> = {};
@@ -26,7 +29,7 @@ export function useArticleLikes(articleIds: string[]) {
           likesByArticle[like.article_id] = { count: 0, userIds: [] };
         }
         likesByArticle[like.article_id].count++;
-        likesByArticle[like.article_id].userIds.push(like.user_id);
+        likesByArticle[like.article_id].userIds.push(like.user_identifier);
       });
       
       return likesByArticle;

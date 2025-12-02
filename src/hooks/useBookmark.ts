@@ -14,7 +14,11 @@ import {
 /**
  * Hook to check if an article is bookmarked (with caching)
  */
-export function useIsBookmarked(articleId: string | undefined, userId: string | undefined) {
+export function useIsBookmarked(
+  articleId: string | undefined, 
+  userId: string | undefined,
+  options?: { enabled?: boolean }
+) {
   return useQuery({
     queryKey: ['bookmark', articleId, userId],
     queryFn: async () => {
@@ -26,7 +30,7 @@ export function useIsBookmarked(articleId: string | undefined, userId: string | 
         return isLocalBookmarked(articleId);
       }
     },
-    enabled: !!articleId,
+    enabled: options?.enabled !== undefined ? options.enabled : !!articleId,
     staleTime: 30 * 1000, // 30 seconds
     gcTime: 2 * 60 * 1000, // 2 minutes
   });

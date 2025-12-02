@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { NewsCard } from "@/components/NewsCard";
 import { useEnrichedNews } from "@/hooks/useNews";
+import { useArticleLikes, useBookmarks } from "@/hooks/useBatchedData";
+import { useAuth } from "@/components/AuthProvider";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search as SearchIcon, X } from "lucide-react";
@@ -30,12 +32,18 @@ const categories = [
 
 const Search = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const [query, setQuery] = useState(searchParams.get("q") || "");
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get("category") || "All");
   const { data: allNews = [], isLoading: loading } = useEnrichedNews();
   const [filteredNews, setFilteredNews] = useState<any[]>([]);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  
+  // Batch fetch likes and bookmarks for filtered articles
+  const articleIds = useMemo(() => filteredNews.map(article => article.id), [filteredNews]);
+  const { data: batchedLikes = {} } = useArticleLikes(articleIds);
+  const { data: batchedBookmarks = {} } = useBookmarks(articleIds, user?.id);
 
   useEffect(() => {
     const q = searchParams.get("q") || "";
@@ -221,6 +229,8 @@ const Search = () => {
                 content={article.content}
                 link={article.link}
                 article={article}
+                batchedLikes={batchedLikes[article.id]}
+                batchedBookmark={batchedBookmarks[article.id]}
                 onClick={() => navigate(`/article/${article.id}`)}
               />
             ))

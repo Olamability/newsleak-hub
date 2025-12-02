@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { CategoryNav } from "@/components/CategoryNav";
 import { NewsCard } from "@/components/NewsCard";
 import { useEnrichedNews } from "@/hooks/useNews";
-
+import { useArticleLikes, useBookmarks } from "@/hooks/useBatchedData";
+import { useAuth } from "@/components/AuthProvider";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { useToast } from "@/hooks/use-toast";
@@ -28,16 +29,25 @@ const categories = [
 const Index = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   const { data: news = [], isLoading: loading, error } = useEnrichedNews();
   const [visibleCount, setVisibleCount] = useState(10); // Number of articles to show initially
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>(categories[0]);
 
+  // Filter news by active category first
+  const filteredNews = activeCategory === "Latest" || activeCategory === "For you"
+    ? news
+    : news.filter(article => article.category === activeCategory);
 
-  // Request notification permission on mount
-  useEffect(() => {
-    requestNotificationPermission();
-  }, []);
+  // Infinite scroll: show only up to visibleCount
+  const visibleNews = filteredNews.slice(0, visibleCount);
+  
+  // Batch fetch likes and bookmarks for visible articles
+  const articleIds = useMemo(() => visibleNews.map(article => article.id), [visibleNews]);
+  const { data: batchedLikes = {} } = useArticleLikes(articleIds);
+  const { data: batchedBookmarks = {} } = useBookmarks(articleIds, user?.id);
+
 
   // Remove auto-refresh of user feeds for public news
 
@@ -47,13 +57,10 @@ const Index = () => {
 
   // Remove refreshFeeds logic; news is managed by admin only
 
-  // Filter news by active category
-  const filteredNews = activeCategory === "Latest" || activeCategory === "For you"
-    ? news
-    : news.filter(article => article.category === activeCategory);
-
-  // Infinite scroll: show only up to visibleCount
-  const visibleNews = filteredNews.slice(0, visibleCount);
+  // Request notification permission on mount
+  useEffect(() => {
+    requestNotificationPermission();
+  }, []);
 
   // Intersection Observer for infinite scroll
   const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
@@ -115,6 +122,8 @@ const Index = () => {
                   content={article.content}
                   link={article.link}
                   article={article}
+                  batchedLikes={batchedLikes[article.id]}
+                  batchedBookmark={batchedBookmarks[article.id]}
                   onClick={() => navigate(`/article/${article.id}`)}
                 />
               ))}

@@ -4,7 +4,11 @@ import { likeArticle, hasUserLiked, getArticleLikes } from '@/lib/articleAnalyti
 /**
  * Hook to get article like status and count (with caching)
  */
-export function useArticleLikeStatus(articleId: string | undefined, userId: string | undefined) {
+export function useArticleLikeStatus(
+  articleId: string | undefined, 
+  userId: string | undefined,
+  options?: { enabled?: boolean }
+) {
   return useQuery({
     queryKey: ['article-like-status', articleId, userId],
     queryFn: async () => {
@@ -17,7 +21,7 @@ export function useArticleLikeStatus(articleId: string | undefined, userId: stri
       
       return { isLiked, count };
     },
-    enabled: !!articleId,
+    enabled: options?.enabled !== undefined ? options.enabled : !!articleId,
     staleTime: 30 * 1000, // 30 seconds
     gcTime: 2 * 60 * 1000, // 2 minutes
   });
