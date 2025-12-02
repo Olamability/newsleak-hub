@@ -141,13 +141,13 @@ export const NewsCard = (props: NewsCardProps) => {
     e.stopPropagation();
     if (!id) return;
     
-    try {
-      await likeArticle(id, user?.id);
-      setLiked(!liked);
-      setLikesCount(liked ? likesCount - 1 : likesCount + 1);
-    } catch (error) {
-      console.error('Failed to like article:', error);
-    }
+    // try {
+    //   await likeArticle(id, user?.id);
+    //   setLiked(!liked);
+    //   setLikesCount(liked ? likesCount - 1 : likesCount + 1);
+    // } catch (error) {
+    //   console.error('Failed to like article:', error);
+    // }
   };
 
   // Keyboard and screen reader accessibility
@@ -185,9 +185,7 @@ export const NewsCard = (props: NewsCardProps) => {
         <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
           <span>{time}</span>
           <span>·</span>
-          {favicon && (
-            <img src={favicon} className="w-4 h-4 rounded mr-1 inline-block align-middle" />
-          )}
+          {/* Favicon removed to prevent broken requests */}
           <span className="font-medium">{source}</span>
         </div>
         <h3 className="text-base font-medium leading-snug line-clamp-3 mb-2">

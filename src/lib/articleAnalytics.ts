@@ -80,8 +80,7 @@ export async function likeArticle(articleId: string, userId?: string): Promise<v
       .from('article_likes')
       .select('*')
       .eq('article_id', articleId)
-      .eq('user_identifier', identifier)
-      .single();
+      .eq('user_identifier', identifier);
 
     if (existing) {
       // Unlike
