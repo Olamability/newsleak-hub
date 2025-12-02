@@ -1,12 +1,28 @@
 
 import { MessageCircle, ThumbsUp, Bookmark, BookmarkCheck } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useIsBookmarked, useToggleBookmark } from "@/hooks/useBookmark";
 import { useArticleLikeStatus, useToggleLike } from "@/hooks/useLike";
 import { Card } from "@/components/ui/card";
 import { DEFAULT_ARTICLE_THUMBNAIL } from "@/lib/constants";
+
+// Helper to get user identifier (user.id or anonymous ID)
+function getUserIdentifier(userId: string | undefined): string {
+  if (userId) return userId;
+  
+  let anonId = localStorage.getItem('anon_id');
+  if (!anonId) {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+      anonId = crypto.randomUUID();
+    } else {
+      anonId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    }
+    localStorage.setItem('anon_id', anonId);
+  }
+  return `anon_${anonId}`;
+}
 
 interface NewsCardProps {
   source: string;
@@ -21,6 +37,9 @@ interface NewsCardProps {
   onClick?: () => void;
   id?: string;
   article?: any; // for full article object if needed
+  // Batched data props to avoid N+1 queries
+  batchedLikes?: { count: number; userIds: string[] };
+  batchedBookmark?: boolean;
 }
 
 export const NewsCard = (props: NewsCardProps) => {
@@ -36,7 +55,9 @@ export const NewsCard = (props: NewsCardProps) => {
     link,
     onClick,
     id,
-    article
+    article,
+    batchedLikes,
+    batchedBookmark
   } = props;
 
   const { user } = useAuth();
@@ -44,9 +65,23 @@ export const NewsCard = (props: NewsCardProps) => {
   const location = useLocation();
   const [showLoginMsg, setShowLoginMsg] = useState(false);
 
-  // Use optimized hooks for bookmark and like status
-  const { data: isBookmarked = false } = useIsBookmarked(id, user?.id);
-  const { data: likeStatus = { isLiked: false, count: initialLikes || 0 } } = useArticleLikeStatus(id, user?.id);
+  // Get the user identifier for checking likes
+  const userIdentifier = useMemo(() => getUserIdentifier(user?.id), [user?.id]);
+
+  // Use batched data if available, otherwise fall back to individual queries
+  const shouldFetchIndividually = !batchedLikes && !batchedBookmark;
+  
+  const { data: isBookmarkedFetch } = useIsBookmarked(id, user?.id, { enabled: shouldFetchIndividually && !!id });
+  const { data: likeStatusFetch } = useArticleLikeStatus(id, user?.id, { enabled: shouldFetchIndividually && !!id });
+  
+  // Use batched data if available, otherwise use fetched data
+  const isBookmarked = batchedBookmark !== undefined ? batchedBookmark : (isBookmarkedFetch || false);
+  const likeStatus = batchedLikes 
+    ? { 
+        count: batchedLikes.count, 
+        isLiked: batchedLikes.userIds.includes(userIdentifier)
+      }
+    : (likeStatusFetch || { isLiked: false, count: initialLikes || 0 });
   
   const toggleBookmark = useToggleBookmark(id, user?.id);
   const toggleLike = useToggleLike(id, user?.id);
@@ -73,13 +108,7 @@ export const NewsCard = (props: NewsCardProps) => {
     e.stopPropagation();
     if (!id) return;
     
-    try {
-      await likeArticle(id, user?.id);
-      setLiked(!liked);
-      setLikesCount(liked ? likesCount - 1 : likesCount + 1);
-    } catch (error) {
-      console.error('Failed to like article:', error);
-    }
+    toggleLike.mutate();
   };
 
   // Keyboard and screen reader accessibility
