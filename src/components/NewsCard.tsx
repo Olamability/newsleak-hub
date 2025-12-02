@@ -208,14 +208,12 @@ export const NewsCard = (props: NewsCardProps) => {
         </div>
       </div>
       <div className="w-24 h-24 shrink-0 rounded-lg overflow-hidden bg-muted flex items-center justify-center relative">
-        {image && (
-          <img
-            src={image}
-            alt={title}
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
-        )}
+        <img
+          src={image || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400&auto=format&fit=crop'}
+          alt={title}
+          className="w-full h-full object-cover"
+          loading="lazy"
+        />
         {favicon && (
           <img
             src={favicon}

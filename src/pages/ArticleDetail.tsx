@@ -163,16 +163,14 @@ const ArticleDetail = () => {
               {article.title}
             </h1>
           </div>
-          {article.image && (
-            <div className="w-full aspect-video rounded-lg overflow-hidden mb-6 bg-muted flex items-center justify-center">
-              <img
-                src={article.image}
-                alt={article.title}
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </div>
-          )}
+          <div className="w-full aspect-video rounded-lg overflow-hidden mb-6 bg-muted flex items-center justify-center">
+            <img
+              src={article.image || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&auto=format&fit=crop'}
+              alt={article.title}
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+          </div>
           <div className="prose max-w-none mb-8">
             {/* Show only a preview/snippet, not full article, and render HTML safely */}
             {(() => {
