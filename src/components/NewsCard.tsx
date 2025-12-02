@@ -69,7 +69,8 @@ export const NewsCard = (props: NewsCardProps) => {
   const userIdentifier = useMemo(() => getUserIdentifier(user?.id), [user?.id]);
 
   // Use batched data if available, otherwise fall back to individual queries
-  const shouldFetchIndividually = !batchedLikes && !batchedBookmark;
+  // Only fetch individually if batched data was NOT provided (undefined, not falsy)
+  const shouldFetchIndividually = batchedLikes === undefined && batchedBookmark === undefined;
   
   const { data: isBookmarkedFetch } = useIsBookmarked(id, user?.id, { enabled: shouldFetchIndividually && !!id });
   const { data: likeStatusFetch } = useArticleLikeStatus(id, user?.id, { enabled: shouldFetchIndividually && !!id });
