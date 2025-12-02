@@ -6,8 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Header } from "@/components/Header";
 import { DEFAULT_ARTICLE_IMAGE } from "@/lib/constants";
 
-import { useEffect, useState } from "react";
-import { loadNews } from "@/lib/newsStorage";
+import { useArticle, useFeeds } from "@/hooks/useNews";
 import { useAuth } from "@/components/AuthProvider";
 import { CommentsSection } from "@/components/CommentsSection";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,27 +15,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 const ArticleDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [article, setArticle] = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: article, isLoading: loading, error: queryError } = useArticle(id);
+  const { data: feeds = [] } = useFeeds();
   const { user } = useAuth();
 
-
-  useEffect(() => {
-    setLoading(true);
-    setError(null);
-    (async () => {
-      try {
-        const articles = await loadNews();
-        const found = articles.find((a: any) => a.id === id);
-        setArticle(found || null);
-        setLoading(false);
-      } catch (e) {
-        setError("Failed to load article.");
-        setLoading(false);
-      }
-    })();
-  }, [id]);
+  const error = queryError ? "Failed to load article." : null;
 
 
   if (loading) {

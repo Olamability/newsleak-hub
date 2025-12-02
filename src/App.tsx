@@ -30,7 +30,18 @@ import NotFound from "./pages/NotFound";
 
 import UserLogin from "./pages/UserLogin";
 
-const queryClient = new QueryClient();
+// Configure React Query with optimized defaults to prevent over-firing requests
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // Data is fresh for 5 minutes
+      gcTime: 10 * 60 * 1000, // Cache for 10 minutes (formerly cacheTime)
+      refetchOnWindowFocus: false, // Don't refetch on window focus
+      refetchOnReconnect: false, // Don't refetch on reconnect
+      retry: 1, // Only retry once on failure
+    },
+  },
+});
 
 
 // Remove ProtectedRoute and admin login logic since admin login is deleted

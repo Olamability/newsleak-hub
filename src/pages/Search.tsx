@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { NewsCard } from "@/components/NewsCard";
-import { loadNews } from "@/lib/newsStorage";
+import { useEnrichedNews } from "@/hooks/useNews";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search as SearchIcon, X } from "lucide-react";
@@ -33,25 +33,9 @@ const Search = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [query, setQuery] = useState(searchParams.get("q") || "");
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get("category") || "All");
-  const [allNews, setAllNews] = useState<any[]>([]);
+  const { data: allNews = [], isLoading: loading } = useEnrichedNews();
   const [filteredNews, setFilteredNews] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [suggestions, setSuggestions] = useState<string[]>([]);
-
-  useEffect(() => {
-    const loadAllNews = async () => {
-      setLoading(true);
-      try {
-        const articles = await loadNews();
-        setAllNews(articles);
-      } catch (error) {
-        console.error("Failed to load news:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadAllNews();
-  }, []);
 
   useEffect(() => {
     const q = searchParams.get("q") || "";
