@@ -73,8 +73,8 @@ const Index = () => {
             favicon: (feed && feed.favicon) || article.favicon || '',
             category: article.category || (feed && feed.category) || "General",
             time,
-            likes: 0,
-            comments: 0,
+            likes: article.likes || 0,
+            comments: article.comments || 0,
             content: article.summary || article.content || '',
             image: article.image || '',
           };
@@ -109,7 +109,7 @@ function getTimeAgo(published: string) {
   // Remove refreshFeeds logic; news is managed by admin only
 
   // Filter news by active category
-  const filteredNews = activeCategory === "For you"
+  const filteredNews = activeCategory === "Latest" || activeCategory === "For you"
     ? news
     : news.filter(article => article.category === activeCategory);
 
