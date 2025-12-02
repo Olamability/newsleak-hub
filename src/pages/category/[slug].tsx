@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { loadNews } from '@/lib/newsStorage';
 import { NewsCard } from '@/components/NewsCard';
@@ -12,7 +12,7 @@ export default function CategoryPage() {
   const [loading, setLoading] = useState(true);
   
   // Batch fetch likes and bookmarks for category articles
-  const articleIds = news.map(article => article.id);
+  const articleIds = useMemo(() => news.map(article => article.id), [news]);
   const { data: batchedLikes = {} } = useArticleLikes(articleIds);
   const { data: batchedBookmarks = {} } = useBookmarks(articleIds, user?.id);
 

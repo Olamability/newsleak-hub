@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { CategoryNav } from "@/components/CategoryNav";
@@ -44,7 +44,7 @@ const Index = () => {
   const visibleNews = filteredNews.slice(0, visibleCount);
   
   // Batch fetch likes and bookmarks for visible articles
-  const articleIds = visibleNews.map(article => article.id);
+  const articleIds = useMemo(() => visibleNews.map(article => article.id), [visibleNews]);
   const { data: batchedLikes = {} } = useArticleLikes(articleIds);
   const { data: batchedBookmarks = {} } = useBookmarks(articleIds, user?.id);
 

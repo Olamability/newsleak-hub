@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useMemo } from "react";
 import { Header } from "@/components/Header";
 import { CategoryNav } from "@/components/CategoryNav";
 import { NewsCard } from "@/components/NewsCard";
@@ -18,7 +19,7 @@ const Trending = () => {
   const trendingNews = allNews.slice(0, 20);
   
   // Batch fetch likes and bookmarks for trending articles
-  const articleIds = trendingNews.map(article => article.id);
+  const articleIds = useMemo(() => trendingNews.map(article => article.id), [trendingNews]);
   const { data: batchedLikes = {} } = useArticleLikes(articleIds);
   const { data: batchedBookmarks = {} } = useBookmarks(articleIds, user?.id);
 

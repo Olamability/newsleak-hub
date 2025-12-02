@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { NewsCard } from "@/components/NewsCard";
@@ -41,7 +41,7 @@ const Search = () => {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   
   // Batch fetch likes and bookmarks for filtered articles
-  const articleIds = filteredNews.map(article => article.id);
+  const articleIds = useMemo(() => filteredNews.map(article => article.id), [filteredNews]);
   const { data: batchedLikes = {} } = useArticleLikes(articleIds);
   const { data: batchedBookmarks = {} } = useBookmarks(articleIds, user?.id);
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Header } from "@/components/Header";
 import { NewsCard } from "@/components/NewsCard";
 import { getBookmarks, removeBookmark } from "@/lib/bookmarks";
@@ -13,7 +13,7 @@ const Bookmarks = () => {
   const navigate = useNavigate();
   
   // Batch fetch likes for bookmarked articles
-  const articleIds = bookmarks.map((article: any) => article.id);
+  const articleIds = useMemo(() => bookmarks.map((article: any) => article.id), [bookmarks]);
   const { data: batchedLikes = {} } = useArticleLikes(articleIds);
 
   useEffect(() => {
