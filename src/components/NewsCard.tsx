@@ -5,6 +5,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { useNavigate, useLocation } from "react-router-dom";
 import { isBookmarked, addBookmark, removeBookmark } from "../lib/bookmarks";
 import { isLocalBookmarked, addLocalBookmark, removeLocalBookmark } from "@/utils/localBookmarks";
+import { likeArticle, hasUserLiked, getArticleLikes } from "@/lib/articleAnalytics";
 import { Card } from "@/components/ui/card";
 
 interface NewsCardProps {
@@ -28,7 +29,7 @@ export const NewsCard = (props: NewsCardProps) => {
     time,
     title,
     image,
-    likes,
+    likes: initialLikes,
     comments,
     favicon,
     content,
@@ -39,6 +40,8 @@ export const NewsCard = (props: NewsCardProps) => {
   } = props;
 
   const [bookmarked, setBookmarked] = useState(false);
+  const [liked, setLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(initialLikes);
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -61,6 +64,24 @@ export const NewsCard = (props: NewsCardProps) => {
     };
     checkBookmark();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, user]);
+
+  useEffect(() => {
+    const checkLike = async () => {
+      if (id) {
+        try {
+          const [isLiked, count] = await Promise.all([
+            hasUserLiked(id, user?.id),
+            getArticleLikes(id)
+          ]);
+          setLiked(isLiked);
+          setLikesCount(count);
+        } catch {
+          setLiked(false);
+        }
+      }
+    };
+    checkLike();
   }, [id, user]);
 
   const handleBookmark = async (e: React.MouseEvent) => {
@@ -115,6 +136,19 @@ export const NewsCard = (props: NewsCardProps) => {
     }
   };
 
+  const handleLike = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!id) return;
+    
+    try {
+      await likeArticle(id, user?.id);
+      setLiked(!liked);
+      setLikesCount(liked ? likesCount - 1 : likesCount + 1);
+    } catch (error) {
+      console.error('Failed to like article:', error);
+    }
+  };
+
   // Keyboard and screen reader accessibility
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if ((e.key === "Enter" || e.key === " ") && onClick) {
@@ -159,9 +193,13 @@ export const NewsCard = (props: NewsCardProps) => {
           {title}
         </h3>
         <div className="flex items-center gap-4 text-xs text-muted-foreground mt-2">
-          <button className="flex items-center gap-1 hover:text-primary focus:text-primary transition-colors" aria-label="Like">
-            <ThumbsUp className="h-3.5 w-3.5" />
-            <span>{likes}</span>
+          <button 
+            className={`flex items-center gap-1 hover:text-primary focus:text-primary transition-colors ${liked ? 'text-primary' : ''}`}
+            aria-label="Like"
+            onClick={handleLike}
+          >
+            <ThumbsUp className={`h-3.5 w-3.5 ${liked ? 'fill-current' : ''}`} />
+            <span>{likesCount}</span>
           </button>
           <button className="flex items-center gap-1 hover:text-primary focus:text-primary transition-colors" aria-label="Comments">
             <MessageCircle className="h-3.5 w-3.5" />

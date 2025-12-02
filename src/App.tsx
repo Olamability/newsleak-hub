@@ -7,9 +7,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import ArticleDetail from "./pages/ArticleDetail";
+import Search from "./pages/Search";
+import Trending from "./pages/Trending";
+import UserSettings from "./pages/UserSettings";
 
 
 import AdminDashboard from "./pages/admin/index";
+import AdminAnalytics from "./pages/admin/analytics";
 import AdminLogin from "./pages/AdminLogin";
 import AdminLoginPage from "./pages/admin/login";
 import AdminSignup from "./pages/admin/signup";
@@ -42,13 +46,17 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/search" element={<Search />} />
+            <Route path="/trending" element={<Trending />} />
             <Route path="/bookmarks" element={<Bookmarks />} />
+            <Route path="/settings" element={<UserSettings />} />
             <Route path="/article/:id" element={<ArticleDetail />} />
             <Route path="/login" element={<UserLogin />} />
             <Route path="/admin-login" element={<AdminLogin />} />
             <Route path="/admin/login" element={<AdminLoginPage />} />
             <Route path="/admin/signup" element={<AdminSignup />} />
             <Route path="/admin/add-feed" element={<AdminAddFeed />} />
+            <Route path="/admin/analytics" element={<AdminAnalytics />} />
             <Route path="/add-feed" element={<AddFeed />} />
             <Route path="/rooms" element={<Rooms />} />
             <Route path="/admin" element={<AdminDashboard />} />

@@ -3,8 +3,10 @@ import { Button } from '@/components/ui/button';
 import { getAdminSession, adminSignOut } from '@/lib/adminAuth';
 import { fetchFeeds } from '@/lib/rssFetcher';
 import { supabase } from '@/lib/supabaseClient';
+import { useNavigate } from 'react-router-dom';
 
 export default function AdminDashboard() {
+  const navigate = useNavigate();
   const [feeds, setFeeds] = useState<any[]>([]);
   const [editingFeedId, setEditingFeedId] = useState<string | null>(null);
   const [editFeed, setEditFeed] = useState<{ url: string; source: string; category: string }>({ url: '', source: '', category: '' });
@@ -62,7 +64,12 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-background p-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-        <button onClick={adminSignOut} className="text-red-500">Sign Out</button>
+        <div className="flex gap-2">
+          <button onClick={() => navigate('/admin/analytics')} className="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90">
+            View Analytics
+          </button>
+          <button onClick={adminSignOut} className="text-red-500">Sign Out</button>
+        </div>
       </div>
       <button
         onClick={handleFetchFeeds}
