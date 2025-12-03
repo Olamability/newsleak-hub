@@ -11,6 +11,8 @@ import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/hooks/use-toast";
 import { Settings, User, Bell, Eye, Shield, LogOut } from "lucide-react";
+import { supabase } from "@/lib/supabaseClient";
+import { requestNotificationPermission, getNotificationPermission } from "@/lib/pushNotifications";
 
 const categories = [
   "Football",
@@ -39,19 +41,48 @@ const UserSettings = () => {
   const [textSize, setTextSize] = useState<"small" | "medium" | "large">("medium");
 
   useEffect(() => {
-    // Load user preferences from localStorage
-    const savedCategories = localStorage.getItem("favoriteCategories");
-    const savedNotifications = localStorage.getItem("notificationSettings");
-    const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
-    const savedTextSize = localStorage.getItem("textSize") as "small" | "medium" | "large" | null;
+    loadUserPreferences();
+  }, [user]);
 
-    if (savedCategories) setFavoriteCategories(JSON.parse(savedCategories));
-    if (savedNotifications) setNotificationSettings(JSON.parse(savedNotifications));
-    if (savedTheme) setTheme(savedTheme);
-    if (savedTextSize) setTextSize(savedTextSize);
-  }, []);
+  const loadUserPreferences = async () => {
+    const userId = user?.id || localStorage.getItem('userId') || `anon_${crypto.randomUUID()}`;
+    localStorage.setItem('userId', userId);
 
-  const toggleCategory = (category: string) => {
+    try {
+      // Try to load from database first
+      const { data: prefs } = await supabase
+        .from('user_preferences')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      if (prefs) {
+        if (prefs.favorite_categories) setFavoriteCategories(prefs.favorite_categories);
+        if (prefs.theme) setTheme(prefs.theme);
+        if (prefs.text_size) setTextSize(prefs.text_size);
+        setNotificationSettings({
+          breakingNews: prefs.breaking_news_alerts ?? true,
+          recommendations: prefs.personalized_alerts ?? true,
+          savedArticles: prefs.email_notifications ?? false,
+        });
+      } else {
+        // Fallback to localStorage
+        const savedCategories = localStorage.getItem("favoriteCategories");
+        const savedNotifications = localStorage.getItem("notificationSettings");
+        const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
+        const savedTextSize = localStorage.getItem("textSize") as "small" | "medium" | "large" | null;
+
+        if (savedCategories) setFavoriteCategories(JSON.parse(savedCategories));
+        if (savedNotifications) setNotificationSettings(JSON.parse(savedNotifications));
+        if (savedTheme) setTheme(savedTheme);
+        if (savedTextSize) setTextSize(savedTextSize);
+      }
+    } catch (error) {
+      console.error('Error loading preferences:', error);
+    }
+  };
+
+  const toggleCategory = async (category: string) => {
     const newCategories = favoriteCategories.includes(category)
       ? favoriteCategories.filter(c => c !== category)
       : [...favoriteCategories, category];
@@ -59,16 +90,44 @@ const UserSettings = () => {
     setFavoriteCategories(newCategories);
     localStorage.setItem("favoriteCategories", JSON.stringify(newCategories));
     
+    // Save to database
+    const userId = user?.id || localStorage.getItem('userId');
+    if (userId) {
+      await supabase
+        .from('user_preferences')
+        .upsert({
+          user_id: userId,
+          favorite_categories: newCategories,
+        }, {
+          onConflict: 'user_id'
+        });
+    }
+    
     toast({
       title: "Preferences updated",
       description: "Your favorite categories have been saved.",
     });
   };
 
-  const updateNotificationSetting = (key: keyof typeof notificationSettings, value: boolean) => {
+  const updateNotificationSetting = async (key: keyof typeof notificationSettings, value: boolean) => {
     const newSettings = { ...notificationSettings, [key]: value };
     setNotificationSettings(newSettings);
     localStorage.setItem("notificationSettings", JSON.stringify(newSettings));
+    
+    // Save to database
+    const userId = user?.id || localStorage.getItem('userId');
+    if (userId) {
+      await supabase
+        .from('user_preferences')
+        .upsert({
+          user_id: userId,
+          breaking_news_alerts: newSettings.breakingNews,
+          personalized_alerts: newSettings.recommendations,
+          email_notifications: newSettings.savedArticles,
+        }, {
+          onConflict: 'user_id'
+        });
+    }
     
     toast({
       title: "Notification preferences updated",
@@ -76,10 +135,23 @@ const UserSettings = () => {
     });
   };
 
-  const updateTheme = (newTheme: "light" | "dark") => {
+  const updateTheme = async (newTheme: "light" | "dark") => {
     setTheme(newTheme);
     localStorage.setItem("theme", newTheme);
     document.documentElement.classList.toggle("dark", newTheme === "dark");
+    
+    // Save to database
+    const userId = user?.id || localStorage.getItem('userId');
+    if (userId) {
+      await supabase
+        .from('user_preferences')
+        .upsert({
+          user_id: userId,
+          theme: newTheme,
+        }, {
+          onConflict: 'user_id'
+        });
+    }
     
     toast({
       title: "Theme updated",
@@ -87,7 +159,7 @@ const UserSettings = () => {
     });
   };
 
-  const updateTextSize = (size: "small" | "medium" | "large") => {
+  const updateTextSize = async (size: "small" | "medium" | "large") => {
     setTextSize(size);
     localStorage.setItem("textSize", size);
     
@@ -98,10 +170,40 @@ const UserSettings = () => {
     if (size === "small") root.classList.add("text-sm");
     else if (size === "large") root.classList.add("text-lg");
     
+    // Save to database
+    const userId = user?.id || localStorage.getItem('userId');
+    if (userId) {
+      await supabase
+        .from('user_preferences')
+        .upsert({
+          user_id: userId,
+          text_size: size,
+        }, {
+          onConflict: 'user_id'
+        });
+    }
+    
     toast({
       title: "Text size updated",
       description: `Text size set to ${size}.`,
     });
+  };
+
+  const handleEnableNotifications = async () => {
+    const permission = await requestNotificationPermission();
+    if (permission) {
+      toast({
+        title: "Notifications enabled",
+        description: "You will now receive push notifications.",
+      });
+      loadUserPreferences();
+    } else {
+      toast({
+        title: "Notifications blocked",
+        description: "Please enable notifications in your browser settings.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleSignOut = async () => {
@@ -264,6 +366,32 @@ const UserSettings = () => {
           </TabsContent>
 
           <TabsContent value="notifications" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Push Notifications</CardTitle>
+                <CardDescription>
+                  Enable browser push notifications for breaking news
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {getNotificationPermission() === 'granted' ? (
+                  <div className="flex items-center gap-2 text-sm text-green-600">
+                    <Bell className="h-4 w-4" />
+                    Push notifications are enabled
+                  </div>
+                ) : getNotificationPermission() === 'denied' ? (
+                  <div className="text-sm text-destructive">
+                    Push notifications are blocked. Please enable them in your browser settings.
+                  </div>
+                ) : (
+                  <Button onClick={handleEnableNotifications}>
+                    <Bell className="h-4 w-4 mr-2" />
+                    Enable Push Notifications
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+
             <Card>
               <CardHeader>
                 <CardTitle>Notification Preferences</CardTitle>
