@@ -13,7 +13,7 @@ export function useArticleLikes(articleIds: string[]) {
       
       const { data, error } = await supabase
         .from('article_likes')
-        .select('article_id, user_identifier')
+        .select('article_id, user_id')
         .in('article_id', articleIds);
       
       if (error) {
@@ -29,7 +29,7 @@ export function useArticleLikes(articleIds: string[]) {
           likesByArticle[like.article_id] = { count: 0, userIds: [] };
         }
         likesByArticle[like.article_id].count++;
-        likesByArticle[like.article_id].userIds.push(like.user_identifier);
+        likesByArticle[like.article_id].userIds.push(like.user_id);
       });
       
       return likesByArticle;
