@@ -84,6 +84,23 @@ CREATE TABLE IF NOT EXISTS public.news_articles (
   engagement_score DECIMAL DEFAULT 0
 );
 
+-- Add foreign key constraint to article_likes table (created in previous migration)
+-- This ensures article_id references valid articles
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.table_constraints 
+    WHERE constraint_name = 'article_likes_article_id_fkey' 
+    AND table_name = 'article_likes'
+  ) THEN
+    ALTER TABLE public.article_likes 
+    ADD CONSTRAINT article_likes_article_id_fkey 
+    FOREIGN KEY (article_id) 
+    REFERENCES public.news_articles(id) 
+    ON DELETE CASCADE;
+  END IF;
+END $$;
+
 -- Article Bookmarks table
 CREATE TABLE IF NOT EXISTS public.article_bookmarks (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -346,11 +363,11 @@ BEGIN
   IF TG_OP = 'INSERT' THEN
     UPDATE public.news_articles 
     SET like_count = like_count + 1 
-    WHERE id = NEW.article_id::uuid;
+    WHERE id = NEW.article_id;
   ELSIF TG_OP = 'DELETE' THEN
     UPDATE public.news_articles 
     SET like_count = GREATEST(0, like_count - 1) 
-    WHERE id = OLD.article_id::uuid;
+    WHERE id = OLD.article_id;
   END IF;
   RETURN NULL;
 END;
