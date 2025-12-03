@@ -154,6 +154,7 @@ CREATE TABLE IF NOT EXISTS public.user_preferences (
   text_size TEXT DEFAULT 'medium',
   auto_play_videos BOOLEAN DEFAULT false,
   show_images BOOLEAN DEFAULT true,
+  fcm_token TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
