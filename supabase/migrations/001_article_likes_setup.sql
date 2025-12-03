@@ -4,7 +4,7 @@
 -- Create the article_likes table if it doesn't exist
 CREATE TABLE IF NOT EXISTS public.article_likes (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  article_id TEXT NOT NULL,
+  article_id UUID NOT NULL,
   user_id TEXT NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   UNIQUE(article_id, user_id)
