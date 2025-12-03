@@ -107,64 +107,84 @@ See [PERFORMANCE_IMPROVEMENTS.md](./PERFORMANCE_IMPROVEMENTS.md) for details.
 
 ## Quick Start
 
-### Prerequisites
-- Node.js & npm - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-- Supabase account and project ([sign up free](https://supabase.com))
-- Firebase account for authentication and push notifications
+### 🚀 Automated Setup (Recommended for Beginners)
 
-### Database Setup (Required First Step!)
-
-Before running the application, you **must** set up your Supabase database:
-
-1. Go to your Supabase project dashboard
-2. Navigate to **SQL Editor**
-3. Open `supabase_complete_schema.sql` from this repository
-4. Copy and paste the entire contents into the SQL Editor
-5. Click **Run** to create all tables, indexes, and policies
-
-📖 **Detailed instructions**: See [SUPABASE_DATABASE_SETUP.md](./SUPABASE_DATABASE_SETUP.md)
-
-### Installation
+The easiest way to get started:
 
 ```sh
 # Clone the repository
-git clone <YOUR_GIT_URL>
-
-# Navigate to the project directory
+git clone https://github.com/Olamability/newsleak-hub.git
 cd newsleak-hub
 
-# Install dependencies
+# Run the interactive setup wizard
+bash scripts/quick-start.sh
+```
+
+The script will guide you through:
+1. ✅ Checking Node.js installation
+2. ✅ Installing dependencies
+3. ✅ Creating .env configuration
+4. ✅ Testing the build
+5. ✅ Next steps guidance
+
+**After the automated setup**, follow the **[Complete Setup Guide](./COMPLETE_SETUP_GUIDE.md)** to:
+- Set up your Supabase database
+- Configure Firebase authentication
+- Deploy to production
+
+### 📖 Manual Setup
+
+If you prefer manual setup or are experienced:
+
+#### Prerequisites
+- Node.js 18+ & npm - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- Supabase account and project ([sign up free](https://supabase.com))
+- Firebase account for authentication and push notifications
+
+#### Installation Steps
+
+```sh
+# 1. Clone the repository
+git clone https://github.com/Olamability/newsleak-hub.git
+cd newsleak-hub
+
+# 2. Install dependencies
 npm install --legacy-peer-deps
 
-# Set up your Supabase database
-# Follow the SUPABASE_DATABASE_SETUP.md guide to create all tables
-# Or run the supabase_complete_schema.sql file in your Supabase SQL Editor
-
-# Set up environment variables
+# 3. Set up environment variables
 cp .env.example .env
-# Edit .env with your Supabase and Firebase credentials
+# Edit .env with your credentials (see COMPLETE_SETUP_GUIDE.md)
 
-# Start the development server
+# 4. Set up database (in Supabase SQL Editor)
+# Run the contents of: supabase_complete_schema.sql
+
+# 5. Verify setup
+bash scripts/verify-setup.sh
+
+# 6. Start development server
 npm run dev
 ```
 
-### Deploying the Edge Function
-
-To enable proper image extraction from RSS feeds:
-
-1. Install Supabase CLI: `npm install -g supabase`
-2. Follow the [PRODUCTION_SETUP_GUIDE.md](./PRODUCTION_SETUP_GUIDE.md)
-3. Deploy the edge function: `supabase functions deploy fetchFeeds`
-
 ## 📚 Documentation
 
-- **[🗄️ Database Setup Guide](./SUPABASE_DATABASE_SETUP.md)** - **START HERE** - Complete guide to set up your Supabase database
-- [Production Setup Guide](./PRODUCTION_SETUP_GUIDE.md) - Complete deployment guide
-- [Database Schema](./DATABASE_SCHEMA.md) - Full database documentation
+### 🌟 Getting Started (Read These First!)
+- **[📘 Complete Setup Guide](./COMPLETE_SETUP_GUIDE.md)** - **START HERE!** - Step-by-step guide for absolute beginners
+- **[✅ Production Checklist](./PRODUCTION_CHECKLIST.md)** - Pre-deployment checklist
+- **[🔧 Scripts README](./scripts/README.md)** - Helper scripts documentation
+
+### Database & Backend
+- [Database Setup Guide](./SUPABASE_DATABASE_SETUP.md) - Supabase database setup
+- [Database Schema](./DATABASE_SCHEMA.md) - Complete schema documentation
+- [Production Setup Guide](./PRODUCTION_SETUP_GUIDE.md) - Advanced deployment guide
+
+### API & Integration
 - [API Documentation](./API_DOCUMENTATION.md) - API reference and usage
+- [Deployment Guide](./DEPLOYMENT_GUIDE.md) - Edge functions deployment
+- [Supabase Setup](./SUPABASE_SETUP_GUIDE.md) - Additional Supabase configuration
+
+### Performance & Optimization
 - [Performance Improvements](./PERFORMANCE_IMPROVEMENTS.md) - Optimization details
-- [Deployment Guide](./DEPLOYMENT_GUIDE.md) - How to deploy edge functions
-- [Supabase Setup](./SUPABASE_SETUP_GUIDE.md) - Database configuration (for article likes)
+- [Tech Stack](./TECH_STACK.md) - Technologies used
 
 ## 🎨 Features Documentation
 
