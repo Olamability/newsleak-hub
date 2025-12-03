@@ -3,13 +3,19 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCTKMG2Jo4C1y_adgAF61GyQ8_ER_8_p9g",
-  authDomain: "news-aggregator-bb220.firebaseapp.com",
-  projectId: "news-aggregator-bb220",
-  storageBucket: "news-aggregator-bb220.firebasestorage.app",
-  messagingSenderId: "393859722906",
-  appId: "1:393859722906:web:2de4c2d2f35aae5b177923"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
+
+// Validate Firebase configuration
+if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
+  console.error('Missing Firebase configuration. Please check your .env file.');
+  console.error('Required: VITE_FIREBASE_API_KEY, VITE_FIREBASE_PROJECT_ID, etc.');
+}
 
 export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
