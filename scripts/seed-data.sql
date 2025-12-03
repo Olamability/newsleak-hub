@@ -17,9 +17,11 @@ BEGIN;
 -- You can find this in Firebase Console -> Authentication -> Users
 
 -- DELETE this if you've already created your admin user
+-- ⚠️ IMPORTANT: Replace 'REPLACE_WITH_YOUR_FIREBASE_UID' with actual Firebase Auth UID
+-- Get your UID from: Firebase Console → Authentication → Users → Copy UID
 INSERT INTO public.admin_users (email, full_name, role, auth_uid, is_active)
 VALUES 
-  ('admin@newsleak.local', 'Admin User', 'super_admin', 'sample-admin-uid', true)
+  ('admin@newsleak.local', 'Admin User', 'super_admin', 'REPLACE_WITH_YOUR_FIREBASE_UID', true)
 ON CONFLICT (email) DO NOTHING;
 
 -- ============================================================================

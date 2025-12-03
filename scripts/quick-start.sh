@@ -80,6 +80,8 @@ print_step "Step 2: Installing Dependencies"
 
 if [ ! -d "node_modules" ]; then
     print_info "Installing npm packages (this may take 1-2 minutes)..."
+    # Note: --legacy-peer-deps is needed because we use React 19
+    # and some UI libraries haven't updated peer deps yet
     npm install --legacy-peer-deps
     print_success "Dependencies installed successfully!"
 else

@@ -6,6 +6,8 @@
 -- ============================================================================
 
 -- 1. Check all required tables exist
+-- NOTE: Expected count is 15 tables as of Dec 2024
+-- If schema is updated with more/fewer tables, update this check
 SELECT 
   'Checking Tables...' as step,
   COUNT(*) as table_count,

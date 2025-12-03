@@ -86,6 +86,8 @@ if [ -d "node_modules" ]; then
         print_warning "Supabase client not found"
     fi
 else
+    # Note: --legacy-peer-deps is required because this project uses React 19
+    # and some UI libraries haven't updated their peer dependencies yet
     print_error "node_modules not found. Run: npm install --legacy-peer-deps"
 fi
 echo ""
@@ -107,11 +109,12 @@ if [ -f ".env" ]; then
     fi
     
     if grep -q "VITE_SUPABASE_ANON_KEY" .env; then
-        # Check if it's not the example value
-        if grep -q "VITE_SUPABASE_ANON_KEY=eyJ" .env; then
+        # Check if it looks like a JWT token (non-empty and reasonable length)
+        ANON_KEY=$(grep "VITE_SUPABASE_ANON_KEY" .env | cut -d'=' -f2)
+        if [ ${#ANON_KEY} -gt 50 ]; then
             print_success "VITE_SUPABASE_ANON_KEY is configured"
         else
-            print_warning "VITE_SUPABASE_ANON_KEY exists but may not be configured"
+            print_warning "VITE_SUPABASE_ANON_KEY exists but appears empty or too short"
         fi
     else
         print_error "VITE_SUPABASE_ANON_KEY not found in .env"

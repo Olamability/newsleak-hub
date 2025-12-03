@@ -32,9 +32,12 @@ This guide helps you solve common issues when setting up and running Newsleak.
 
 **Problem**: Errors during `npm install`
 
+**Why `--legacy-peer-deps` is needed**:
+This project uses React 19 and some UI libraries haven't yet updated their peer dependencies to support it. The `--legacy-peer-deps` flag tells npm to ignore peer dependency conflicts and install packages using older resolution logic. This is a temporary workaround until all dependencies officially support React 19.
+
 **Solutions**:
 
-**Try 1 - Use legacy peer deps flag**:
+**Try 1 - Use legacy peer deps flag** (Recommended):
 ```bash
 npm install --legacy-peer-deps
 ```
