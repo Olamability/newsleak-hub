@@ -109,8 +109,20 @@ See [PERFORMANCE_IMPROVEMENTS.md](./PERFORMANCE_IMPROVEMENTS.md) for details.
 
 ### Prerequisites
 - Node.js & npm - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-- Supabase account and project
+- Supabase account and project ([sign up free](https://supabase.com))
 - Firebase account for authentication and push notifications
+
+### Database Setup (Required First Step!)
+
+Before running the application, you **must** set up your Supabase database:
+
+1. Go to your Supabase project dashboard
+2. Navigate to **SQL Editor**
+3. Open `supabase_complete_schema.sql` from this repository
+4. Copy and paste the entire contents into the SQL Editor
+5. Click **Run** to create all tables, indexes, and policies
+
+📖 **Detailed instructions**: See [SUPABASE_DATABASE_SETUP.md](./SUPABASE_DATABASE_SETUP.md)
 
 ### Installation
 
@@ -123,6 +135,10 @@ cd newsleak-hub
 
 # Install dependencies
 npm install --legacy-peer-deps
+
+# Set up your Supabase database
+# Follow the SUPABASE_DATABASE_SETUP.md guide to create all tables
+# Or run the supabase_complete_schema.sql file in your Supabase SQL Editor
 
 # Set up environment variables
 cp .env.example .env
@@ -142,12 +158,13 @@ To enable proper image extraction from RSS feeds:
 
 ## 📚 Documentation
 
+- **[🗄️ Database Setup Guide](./SUPABASE_DATABASE_SETUP.md)** - **START HERE** - Complete guide to set up your Supabase database
 - [Production Setup Guide](./PRODUCTION_SETUP_GUIDE.md) - Complete deployment guide
 - [Database Schema](./DATABASE_SCHEMA.md) - Full database documentation
 - [API Documentation](./API_DOCUMENTATION.md) - API reference and usage
 - [Performance Improvements](./PERFORMANCE_IMPROVEMENTS.md) - Optimization details
 - [Deployment Guide](./DEPLOYMENT_GUIDE.md) - How to deploy edge functions
-- [Supabase Setup](./SUPABASE_SETUP_GUIDE.md) - Database configuration
+- [Supabase Setup](./SUPABASE_SETUP_GUIDE.md) - Database configuration (for article likes)
 
 ## 🎨 Features Documentation
 
