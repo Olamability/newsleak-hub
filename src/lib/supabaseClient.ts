@@ -4,8 +4,9 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Missing Supabase configuration. Please check your .env file.');
-  console.error('Required: VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY');
+  const error = 'Missing Supabase configuration. Please check your .env file.\nRequired: VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY';
+  console.error(error);
+  throw new Error(error);
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);

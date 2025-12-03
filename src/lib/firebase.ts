@@ -13,8 +13,9 @@ const firebaseConfig = {
 
 // Validate Firebase configuration
 if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
-  console.error('Missing Firebase configuration. Please check your .env file.');
-  console.error('Required: VITE_FIREBASE_API_KEY, VITE_FIREBASE_PROJECT_ID, etc.');
+  const error = 'Missing Firebase configuration. Please check your .env file.\nRequired: VITE_FIREBASE_API_KEY, VITE_FIREBASE_PROJECT_ID, etc.';
+  console.error(error);
+  throw new Error(error);
 }
 
 export const app = initializeApp(firebaseConfig);
