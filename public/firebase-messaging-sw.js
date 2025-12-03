@@ -1,6 +1,12 @@
 // Firebase Cloud Messaging Service Worker
 // This handles background push notifications
 
+// IMPORTANT SECURITY NOTE:
+// These Firebase config values are intentionally client-side and are safe to expose.
+// They identify your Firebase project and are needed for the client SDK to work.
+// Your actual security comes from Firebase Security Rules, not hiding these values.
+// For production, you can fetch these from your app's config endpoint if preferred.
+
 importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js');
 

@@ -202,7 +202,7 @@ export async function getPersonalizedArticles(
     
     // Exclude already viewed articles
     if (viewedArticleIds.length > 0) {
-      query = query.not('id', 'in', `(${viewedArticleIds.join(',')})`);
+      query = query.not('id', 'in', viewedArticleIds);
     }
     
     const { data, error } = await query.limit(limit);

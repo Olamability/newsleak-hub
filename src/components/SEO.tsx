@@ -21,17 +21,18 @@ export function SEO({
   title = 'Newsleak - Your Trusted News Aggregator',
   description = 'Stay informed with Newsleak. Get the latest news from trusted sources across Politics, Sports, Entertainment, Technology, and more.',
   image = '/og-image.png',
-  url = typeof window !== 'undefined' ? window.location.href : 'https://newsleak.com',
+  url = typeof window !== 'undefined' ? window.location.href : import.meta.env.VITE_APP_URL || 'https://newsleak.com',
   type = 'website',
   article,
   noindex = false,
 }: SEOProps) {
   const siteName = 'Newsleak';
   const twitterHandle = '@newsleak';
+  const baseUrl = import.meta.env.VITE_APP_URL || 'https://newsleak.com';
   
   // Ensure URLs are absolute
-  const absoluteUrl = url.startsWith('http') ? url : `https://newsleak.com${url}`;
-  const absoluteImage = image.startsWith('http') ? image : `https://newsleak.com${image}`;
+  const absoluteUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+  const absoluteImage = image.startsWith('http') ? image : `${baseUrl}${image}`;
   
   // Generate structured data for articles
   const structuredData = type === 'article' && article ? {
@@ -51,7 +52,7 @@ export function SEO({
       name: siteName,
       logo: {
         '@type': 'ImageObject',
-        url: 'https://newsleak.com/logo.png',
+        url: `${baseUrl}/logo.png`,
       },
     },
     mainEntityOfPage: {

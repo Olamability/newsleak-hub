@@ -67,13 +67,19 @@ export const requestNotificationPermission = async (): Promise<string | null> =>
 // Save FCM token to database for the current user
 const saveFCMToken = async (token: string) => {
   try {
-    const userId = localStorage.getItem('userId') || 
-                   localStorage.getItem('anonUserId') || 
-                   `anon_${crypto.randomUUID()}`;
+    // Get or create user ID with proper consent tracking
+    let userId = localStorage.getItem('userId');
+    
+    if (!userId) {
+      // Generate anonymous user ID only if user consents to notifications
+      userId = `anon_${crypto.randomUUID()}`;
+      localStorage.setItem('userId', userId);
+      // Mark that user has consented to tracking by enabling notifications
+      localStorage.setItem('trackingConsent', 'true');
+    }
     
     // Store in localStorage for future reference
     localStorage.setItem('fcmToken', token);
-    localStorage.setItem('userId', userId);
     
     // Create/update user preferences with FCM token
     const { error } = await supabase
