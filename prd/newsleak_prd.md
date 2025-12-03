@@ -1,245 +1,223 @@
-# Newsleak PRD – Comprehensive Version
+Product Name: Newsleak
+Platform: Mobile App (iOS & Android), Web Application
+Tech Stack: React 19.1, TypeScript 5.9, Vite 5.4, Tailwind CSS 3.4, shadcn-ui + Radix, React Router DOM, React Query, Supabase, Firebase, rss-parser, Recharts
+Primary Function: Aggregator of news from multiple sources, with personalization, trending topics, offline reading, and admin management for adding sources via RSS/API.
 
-**Product Name:** Newsleak  
-**Platform:** Mobile App (iOS & Android), Web Application  
-**Primary Function:** Aggregator of news from multiple sources, with personalization, trending topics, push notifications, and admin management for adding sources via RSS/API.
+1. Objective
 
----
+Newsleak delivers a fast, responsive, and personalized news aggregation experience for users across Nigeria, South Africa, and globally. Key goals:
 
-## 1. Objective
-Newsleak aims to provide users with a **fast, personalized, and visually appealing news aggregation experience**, offering:
+Trending news and breaking alerts
 
-- Trending news and breaking alerts
-- Personalized feeds based on interests
-- Seamless reading experience with rich media
-- Ability for admin to add/manage sources efficiently
+Personalized feeds based on reading behavior and preferences
 
----
+Seamless reading experience with rich media (images, embedded video)
 
-## 2. Target Audience
-- Age: 18–45 years  
-- Tech-savvy news consumers in Nigeria and South Africa initially, with global expansion potential  
-- Users who consume news via mobile devices and web  
-- Preference for summarized, fast-loading, and reliable news
+Admin tools for efficient management of sources via RSS/API
 
----
+2. Target Audience
 
-## 3. Key Features
+Age: 18–45 years
 
-### 3.1 Mobile App Features
-#### 3.1.1 Home / Feed Screen
-- Personalized news feed algorithm (based on interests and reading behavior)
-- Trending news section (top news, local news, global news)
-- News cards with:
-  - Headline
-  - Source
-  - Publish date/time
-  - Short snippet (50–80 words)
-  - Thumbnail image
-- Infinite scroll and pull-to-refresh
-- Bookmark/save article button
-- Share article to social media or WhatsApp
+Tech-savvy users consuming news on web and mobile
 
-#### 3.1.2 News Detail Screen
-- Full article view:
-  - Headline, source, author (if available), time
-  - Full content with images, embedded videos, and links
-- Related articles suggestions
-- Comment section (optional)
-- Like/dislike buttons for user feedback
-- Options:
-  - Bookmark
-  - Share
-  - Adjust text size
-  - Dark mode toggle
-- Ads placement (optional)
+Users preferring fast-loading, summarized, and reliable news
 
-#### 3.1.3 Search Screen
-- Search bar with auto-suggestions
-- Filter by category (Politics, Sports, Entertainment, Tech, etc.)
-- Display search results in news cards
+Admins managing news sources and analytics
 
-#### 3.1.4 Categories Screen
-- List of categories with icons
-- Each category opens filtered news feed
-- Optional: Trending tags under each category
+3. Key Features
+   3.1 Mobile App Features
 
-#### 3.1.5 Notifications Screen
-- List of notifications:
-  - Breaking news alerts
-  - Personalized news recommendations
-  - Saved article reminders
-- Push notification handling (via Firebase or OneSignal)
+Home / Feed Screen
 
-#### 3.1.6 User Profile / Settings
-- User preferences:
-  - Favorite categories
-  - Notification preferences
-  - Theme (Light/Dark)
-- Account management (optional: login via email, phone, Google, Apple)
-- Saved/bookmarked articles
-- Reading history
-- Privacy settings and GDPR compliance
+Personalized news feed algorithm (React Query + Supabase + local storage caching)
 
----
+Trending news section (top, local, global)
 
-### 3.2 Web Application Features
-- Fully responsive design for desktop, tablet, and mobile
-- Home page with:
-  - Top stories carousel
-  - Trending news grid
-  - Categories menu
-- Category pages with paginated news list
-- Search functionality with filters
-- Article detail page with:
-  - Full content
-  - Related articles
-  - Social sharing buttons
-- User login/account features (optional)
-- Bookmark and read later
-- Admin portal access for source management
+News cards with headline, source, publish date/time, snippet, thumbnail
 
----
+Infinite scroll and pull-to-refresh
 
-### 3.3 Admin / Backend Features
-#### 3.3.1 Dashboard
-- Overview of:
-  - Total articles aggregated
-  - Active sources
-  - Top trending articles
-  - User engagement statistics
-- Analytics:
-  - Views per article
-  - Click-through rates
-  - Daily/weekly/monthly active users
+Bookmark/save and share options
 
-#### 3.3.2 Source Management
-- Add/remove news sources:
-  - RSS feed URL
-  - API endpoint (JSON/XML)
-  - Manual input (optional)
-- Categorize sources by region, category, or language
-- Fetch schedule:
-  - Pull every X minutes/hours
-  - Auto-fetch updates
-- Article validation rules:
-  - Avoid duplicates
-  - Filter by keywords, language, or minimum content length
-- Preview imported articles before publishing
+News Detail Screen
 
-#### 3.3.3 Article Management
-- Edit fetched content before publishing (optional)
-- Set article tags, categories, and priority
-- Bulk publishing options
-- Archive old articles
+Full article view with headline, source, author, images, embedded video, and links
 
-#### 3.3.4 Notification Management
-- Create push notifications:
-  - Select articles for alerts
-  - Schedule notifications
-  - Target users by category preference
-- Integrate with push notification services (Firebase/OneSignal)
+Related articles suggestions
 
-#### 3.3.5 User Management
-- Manage registered users (if accounts are implemented)
-- View engagement stats per user
+Like/dislike buttons
 
-#### 3.3.6 Settings
-- Global site settings:
-  - Default language
-  - Default categories
-  - Ad placements
-  - Theme
-  - API keys for RSS/API integration
-- Logging & error tracking
-- Content moderation rules
+Options: bookmark, share, adjust text size, dark mode toggle
 
----
+Search Screen
 
-## 4. News Aggregation Methods
-1. **RSS Feeds**
-   - Admin enters RSS feed URL
-   - Automatic parsing and categorization
-   - Option to fetch images/videos from feed
-2. **API Integration**
-   - Admin enters API endpoint with authentication if needed
-   - Pull articles in JSON/XML format
-   - Map API fields to Newsleak fields
-3. **Manual Add**
-   - Optional form for admin to manually add an article
-   - Useful for exclusive content or local reporting
+Search bar with auto-suggestions
 
----
+Filter by category (Politics, Sports, Entertainment, Tech, etc.)
 
-## 5. Technical Requirements
-- Mobile App:
-  - iOS & Android
-  - Cross-platform framework recommended (React Native or Flutter)
-- Web App:
-  - Responsive design
-  - SPA (React or Vue) or traditional CMS-integrated web
-- Backend:
-  - Node.js / Python / PHP (Laravel) with MySQL/PostgreSQL
-  - Caching for feed speed (Redis recommended)
-  - Admin panel built with React/Angular or Laravel Nova
-- Push notifications via Firebase/OneSignal
-- Cloud storage for images/videos (AWS S3, Cloudinary)
-- Scalable architecture to support 50k–500k users initially
+Display search results as news cards
 
----
+Categories Screen
 
-## 6. User Stories
-- **As a user**, I want to see trending news so that I am up to date.  
-- **As a user**, I want to customize my feed by category so I only see relevant news.  
-- **As a user**, I want to save articles to read later.  
-- **As an admin**, I want to add RSS feeds so that news content is aggregated automatically.  
-- **As an admin**, I want to send push notifications for breaking news.  
-- **As an admin**, I want analytics to track user engagement and article performance.
+List of categories with icons
 
----
+Each opens a filtered news feed
 
-## 7. Screens / Flow
-### Mobile App:
-1. Splash Screen → Onboarding/Sign In → Home Feed → Article Detail → Bookmark/Share  
-2. Categories → Filtered Feed → Article Detail  
-3. Search → Results → Article Detail  
-4. Notifications → Click → Article Detail  
-5. Profile → Settings → Preferences
+Optional trending tags under each category
 
-### Web App:
-1. Home Page → Trending → Article Detail → Related Articles  
-2. Categories Page → Paginated List → Article Detail  
-3. Search → Filtered Results → Article Detail  
-4. Admin Dashboard → Source Management → Article Management → Notifications
+Notifications Screen
 
----
+Breaking news alerts and personalized recommendations
 
-## 8. Non-Functional Requirements
-- **Performance:** Load first screen in <2 seconds  
-- **Security:** SSL, secure API endpoints, user data protection  
-- **Scalability:** Able to support growth in users and sources  
-- **Accessibility:** Support for screen readers, alt text for images  
-- **SEO:** Structured metadata for web articles
+Saved article reminders
 
----
+Push notification handling via Firebase
 
-## 9. Analytics / Reporting
-- Article views per source, category, and region  
-- User engagement: likes, bookmarks, shares  
-- Popular keywords and trending topics  
-- Mobile vs web user metrics
+User Profile / Settings
 
----
+Favorite categories, notification preferences, theme (light/dark)
 
-## 10. Optional / Future Enhancements
-- AI-based personalized recommendations
-- Multi-language support
-- Comment and interaction system
-- Monetization via native ads or sponsored content
-- Dark mode / night reading mode
-- Offline reading via caching
+Saved/bookmarked articles and reading history
 
----
+Account management via email, phone, Google, Apple
 
-This PRD mirrors Opera News’ operations, covering both mobile and web experience, admin workflows, and news aggregation methods, making it actionable for developers to create all screens, features, and backend logic without missing anything.
+Privacy settings / GDPR compliance
 
+3.2 Web Application Features
+
+Fully responsive for desktop, tablet, and mobile (Tailwind CSS + shadcn-ui components)
+
+Home page with top stories carousel, trending grid, categories menu
+
+Category pages with paginated news list
+
+Search functionality with filters
+
+Article detail page: full content, related articles, social sharing
+
+User login and account features
+
+Bookmark and read later
+
+Offline support via IndexedDB/localStorage for cached articles
+
+Admin portal access for source management
+
+3.3 Admin / Backend Features
+
+Dashboard
+
+Total articles aggregated, active sources, top trending articles, user engagement stats
+
+Analytics: views per article, click-through rates, daily/weekly/monthly active users
+
+Source Management
+
+Add/remove news sources (RSS feed URL, API endpoint)
+
+Categorize sources by region, category, or language
+
+Fetch schedule and automatic updates
+
+Article validation: avoid duplicates, filter by keywords, language, or min content length
+
+Preview imported articles before publishing
+
+Article Management
+
+Edit fetched content before publishing (optional)
+
+Set tags, categories, priority
+
+Bulk publishing and archiving old articles
+
+Notification Management
+
+Schedule push notifications
+
+Target users by category preferences
+
+Integrate with Firebase/OneSignal
+
+User Management
+
+Manage registered users (optional)
+
+View engagement stats per user
+
+Settings
+
+Default language, categories, ad placements, theme, API keys
+
+Logging, error tracking, content moderation rules
+
+4. News Aggregation Methods
+
+RSS Feeds: parse feeds, categorize, fetch images/videos, map to article schema
+
+API Integration: pull JSON/XML, map fields, authentication if required
+
+Manual Add: optional admin form for exclusive or local content
+
+5. Technical Requirements
+
+Mobile App: iOS & Android, cross-platform React Native
+
+Web App: React SPA (Vite + TypeScript), fully responsive, offline caching
+
+Backend: Supabase + Firebase, Node.js / serverless functions, caching (Redis optional)
+
+Push Notifications: Firebase/OneSignal
+
+Cloud Storage: Images/videos via AWS S3 or Cloudinary
+
+Scalable Architecture: support 50k–500k users
+
+6. User Stories
+
+Users want trending news, personalized feeds, and saved articles
+
+Admins want to manage sources, send push notifications, and track analytics
+
+7. Screens / Flow
+
+Mobile: Splash → Onboarding/Sign In → Home → Article → Bookmark/Share → Categories → Search → Notifications → Profile
+
+Web: Home → Trending → Article → Related Articles → Categories → Search → Admin Dashboard → Source Management → Article Management → Notifications
+
+8. Non-Functional Requirements
+
+Performance: Load first screen <2s
+
+Security: SSL, secure API endpoints, user data protection
+
+Scalability: Handle growth in users and sources
+
+Accessibility: Screen reader support, alt text for images
+
+SEO: Structured metadata and social sharing meta tags
+
+9. Analytics / Reporting
+
+Article views by source, category, region
+
+User engagement: likes, bookmarks, shares
+
+Popular keywords, trending topics
+
+Mobile vs web metrics
+
+10. Optional / Future Enhancements
+
+AI-based personalized recommendations
+
+Multi-language support
+
+Comment and interaction system
+
+Monetization via ads or sponsored content
+
+Dark mode / night reading mode
+
+Offline reading via caching
