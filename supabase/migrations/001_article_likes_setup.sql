@@ -30,12 +30,16 @@ CREATE POLICY "Allow public read access to article_likes"
   USING (true);
 
 -- Allow anyone to insert likes (including anonymous users)
+-- Note: This is intentionally permissive to support anonymous users
+-- For production, consider adding rate limiting via Edge Functions
 CREATE POLICY "Allow users to insert their own likes"
   ON public.article_likes
   FOR INSERT
   WITH CHECK (true);
 
 -- Allow anyone to delete their own likes
+-- Note: The application logic ensures users only delete their own likes
+-- For stricter security, add: USING (user_id = current_setting('request.jwt.claim.sub', true))
 CREATE POLICY "Allow users to delete their own likes"
   ON public.article_likes
   FOR DELETE

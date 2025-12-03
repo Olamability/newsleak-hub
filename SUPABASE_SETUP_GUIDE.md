@@ -111,7 +111,20 @@ ORDER BY ordinal_position;
 2. **Public Insert Access**: Anyone can create likes (including anonymous users)
 3. **Public Delete Access**: Anyone can remove likes (the application logic ensures users only delete their own)
 
-> **Note**: For production, you may want to add stricter RLS policies that check the user_id matches the authenticated user or anonymous session.
+> **Security Note**: The current RLS policies are intentionally permissive to support anonymous users. For production environments with stricter security requirements, consider:
+>
+> - **For authenticated users only**: Modify policies to check `auth.uid()` matches `user_id`
+> - **For anonymous users**: Implement rate limiting via Supabase Edge Functions
+> - **For production**: Add CAPTCHA or similar anti-abuse measures
+>
+> Example stricter policy for authenticated users:
+> ```sql
+> CREATE POLICY "Authenticated users can manage their likes"
+>   ON public.article_likes
+>   FOR ALL
+>   USING (user_id = auth.uid()::text)
+>   WITH CHECK (user_id = auth.uid()::text);
+> ```
 
 ## Additional Recommendations
 

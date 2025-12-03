@@ -146,14 +146,14 @@ export async function hasUserLiked(articleId: string, userId?: string): Promise<
       .select('*')
       .eq('article_id', articleId)
       .eq('user_id', identifier)
-      .maybeSingle();
+      .maybeSingle(); // Returns null if no match, or single record (UNIQUE constraint prevents multiple)
 
     if (error) {
       console.error('Error checking if user liked:', error);
       return false;
     }
 
-    return !!data;
+    return !!data; // Convert null/undefined to false, record to true
   } catch (error) {
     console.error('Exception checking if user liked:', error);
     return false;
