@@ -76,28 +76,43 @@ export async function likeArticle(articleId: string, userId?: string): Promise<v
     // Check if already liked
     const identifier = userId || `anon_${localStorage.getItem('anon_id') || generateAnonId()}`;
     
-    const { data: existing } = await supabase
+    const { data: existing, error: selectError } = await supabase
       .from('article_likes')
       .select('*')
       .eq('article_id', articleId)
-      .eq('user_identifier', identifier);
+      .eq('user_id', identifier);
 
-    if (existing) {
+    if (selectError) {
+      console.error('Error checking existing like:', selectError);
+      throw selectError;
+    }
+
+    if (existing && existing.length > 0) {
       // Unlike
-      await supabase
+      const { error: deleteError } = await supabase
         .from('article_likes')
         .delete()
         .eq('article_id', articleId)
-        .eq('user_identifier', identifier);
+        .eq('user_id', identifier);
+      
+      if (deleteError) {
+        console.error('Error deleting like:', deleteError);
+        throw deleteError;
+      }
     } else {
       // Like
-      await supabase.from('article_likes').insert([
+      const { error: insertError } = await supabase.from('article_likes').insert([
         {
           article_id: articleId,
-          user_identifier: identifier,
+          user_id: identifier,
           created_at: new Date().toISOString(),
         }
       ]);
+      
+      if (insertError) {
+        console.error('Error inserting like:', insertError);
+        throw insertError;
+      }
     }
   } catch (error) {
     console.error('Failed to like article:', error);
@@ -130,11 +145,17 @@ export async function hasUserLiked(articleId: string, userId?: string): Promise<
       .from('article_likes')
       .select('*')
       .eq('article_id', articleId)
-      .eq('user_identifier', identifier)
-      .single();
+      .eq('user_id', identifier)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error checking if user liked:', error);
+      return false;
+    }
 
     return !!data;
   } catch (error) {
+    console.error('Exception checking if user liked:', error);
     return false;
   }
 }
