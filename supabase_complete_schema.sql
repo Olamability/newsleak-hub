@@ -94,6 +94,7 @@ CREATE TABLE IF NOT EXISTS public.news_articles (
   image TEXT,
   source TEXT,
   author TEXT,
+  category TEXT,
   published TIMESTAMP WITH TIME ZONE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
