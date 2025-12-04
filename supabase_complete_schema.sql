@@ -309,6 +309,7 @@ CREATE INDEX IF NOT EXISTS idx_news_articles_is_trending ON public.news_articles
 CREATE INDEX IF NOT EXISTS idx_news_articles_engagement_score ON public.news_articles(engagement_score DESC);
 CREATE INDEX IF NOT EXISTS idx_news_articles_link ON public.news_articles(link);
 CREATE INDEX IF NOT EXISTS idx_news_articles_source ON public.news_articles(source);
+CREATE INDEX IF NOT EXISTS idx_news_articles_category ON public.news_articles(category);
 
 -- 2.5 Article Likes Indexes
 CREATE INDEX IF NOT EXISTS idx_article_likes_article_id ON public.article_likes(article_id);
