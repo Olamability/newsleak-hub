@@ -18,7 +18,8 @@ import AdminLogin from "./pages/AdminLogin";
 import AdminLoginPage from "./pages/admin/login";
 import AdminSignup from "./pages/admin/signup";
 import AdminAddFeed from "./pages/admin/add-feed";
-
+import AdminNotifications from "./pages/admin/notifications";
+import AdminUserManagement from "./pages/admin/user-management";
 
 import { AppProvider } from "@/context/AppContext";
 import { NotificationsPlaceholder } from "@/components/NotificationsPlaceholder";
@@ -29,6 +30,12 @@ import Bookmarks from "./pages/Bookmarks";
 import NotFound from "./pages/NotFound";
 
 import UserLogin from "./pages/UserLogin";
+import UserSignup from "./pages/signup";
+import ForgotPassword from "./pages/forgot-password";
+import AdminNotifications from "./pages/admin/notifications";
+import Notifications from "./pages/Notifications";
+import Profile from "./pages/Profile";
+import Onboarding from "./pages/Onboarding";
 
 // Configure React Query with optimized defaults to prevent over-firing requests
 const queryClient = new QueryClient({
@@ -60,14 +67,21 @@ const App = () => (
             <Route path="/search" element={<Search />} />
             <Route path="/trending" element={<Trending />} />
             <Route path="/bookmarks" element={<Bookmarks />} />
+            <Route path="/notifications" element={<Notifications />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/settings" element={<UserSettings />} />
             <Route path="/article/:id" element={<ArticleDetail />} />
             <Route path="/login" element={<UserLogin />} />
+            <Route path="/signup" element={<UserSignup />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/admin-login" element={<AdminLogin />} />
             <Route path="/admin/login" element={<AdminLoginPage />} />
             <Route path="/admin/signup" element={<AdminSignup />} />
             <Route path="/admin/add-feed" element={<AdminAddFeed />} />
             <Route path="/admin/analytics" element={<AdminAnalytics />} />
+            <Route path="/admin/notifications" element={<AdminNotifications />} />
+            <Route path="/admin/users" element={<AdminUserManagement />} />
             <Route path="/add-feed" element={<AddFeed />} />
             <Route path="/rooms" element={<Rooms />} />
             <Route path="/admin" element={<AdminDashboard />} />
