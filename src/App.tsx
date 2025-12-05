@@ -20,6 +20,7 @@ import AdminSignup from "./pages/admin/signup";
 import AdminAddFeed from "./pages/admin/add-feed";
 import AdminNotifications from "./pages/admin/notifications";
 import AdminUserManagement from "./pages/admin/user-management";
+import AdminArticleManagement from "./pages/admin/article-management";
 
 import { AppProvider } from "@/context/AppContext";
 import { NotificationsPlaceholder } from "@/components/NotificationsPlaceholder";
@@ -32,7 +33,6 @@ import NotFound from "./pages/NotFound";
 import UserLogin from "./pages/UserLogin";
 import UserSignup from "./pages/signup";
 import ForgotPassword from "./pages/forgot-password";
-import AdminNotifications from "./pages/admin/notifications";
 import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
 import Onboarding from "./pages/Onboarding";
@@ -82,6 +82,7 @@ const App = () => (
             <Route path="/admin/analytics" element={<AdminAnalytics />} />
             <Route path="/admin/notifications" element={<AdminNotifications />} />
             <Route path="/admin/users" element={<AdminUserManagement />} />
+            <Route path="/admin/articles" element={<AdminArticleManagement />} />
             <Route path="/add-feed" element={<AddFeed />} />
             <Route path="/rooms" element={<Rooms />} />
             <Route path="/admin" element={<AdminDashboard />} />

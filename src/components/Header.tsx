@@ -1,7 +1,8 @@
-import { Menu, Search, TrendingUp, Bookmark, User, Settings, LogIn } from "lucide-react";
+import { Menu, Search, TrendingUp, Bookmark, User, Settings, LogIn, Bell, UserCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/components/AuthProvider";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +16,13 @@ import { useEffect, useState } from "react";
 export const Header = ({ siteName, favicon }: { siteName?: string; favicon?: string }) => {
   const { user, signOut, loading } = useAuth();
   const navigate = useNavigate();
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+  
+  // In a real app, this would fetch from the database
+  useEffect(() => {
+    // Mock unread count
+    setUnreadNotifications(3);
+  }, []);
   
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -59,6 +67,26 @@ export const Header = ({ siteName, favicon }: { siteName?: string; favicon?: str
             <Bookmark className="h-5 w-5" />
           </Button>
           
+          {user && (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-9 w-9 relative"
+              onClick={() => navigate("/notifications")}
+              aria-label="Notifications"
+            >
+              <Bell className="h-5 w-5" />
+              {unreadNotifications > 0 && (
+                <Badge 
+                  className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                  variant="destructive"
+                >
+                  {unreadNotifications}
+                </Badge>
+              )}
+            </Button>
+          )}
+          
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -67,6 +95,10 @@ export const Header = ({ siteName, favicon }: { siteName?: string; favicon?: str
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => navigate("/profile")}>
+                  <UserCircle className="h-4 w-4 mr-2" />
+                  Profile
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/settings")}>
                   <Settings className="h-4 w-4 mr-2" />
                   Settings
@@ -74,6 +106,10 @@ export const Header = ({ siteName, favicon }: { siteName?: string; favicon?: str
                 <DropdownMenuItem onClick={() => navigate("/bookmarks")}>
                   <Bookmark className="h-4 w-4 mr-2" />
                   Bookmarks
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/notifications")}>
+                  <Bell className="h-4 w-4 mr-2" />
+                  Notifications
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={signOut}>

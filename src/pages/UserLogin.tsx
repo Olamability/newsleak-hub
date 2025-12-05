@@ -1,7 +1,12 @@
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2, LogIn, Mail, Lock, UserPlus } from "lucide-react";
 
 
 export default function UserLogin() {
@@ -9,14 +14,6 @@ export default function UserLogin() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isRegister, setIsRegister] = useState(false);
-  const [registerName, setRegisterName] = useState("");
-  const [registerUsername, setRegisterUsername] = useState("");
-  const [registerEmail, setRegisterEmail] = useState("");
-  const [registerPassword, setRegisterPassword] = useState("");
-  const [registerConfirmPassword, setRegisterConfirmPassword] = useState("");
-  const [registerError, setRegisterError] = useState("");
-  const [registerLoading, setRegisterLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -24,146 +21,109 @@ export default function UserLogin() {
     e.preventDefault();
     setLoading(true);
     setError("");
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
-    if (error) {
-      setError(error.message);
+    
+    if (signInError) {
+      setError(signInError.message);
     } else {
       const from = (location.state as any)?.from || "/";
       navigate(from, { replace: true });
     }
   };
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setRegisterError("");
-    if (!registerName.trim() || !registerUsername.trim() || !registerEmail.trim() || !registerPassword.trim() || !registerConfirmPassword.trim()) {
-      setRegisterError("All fields are required.");
-      return;
-    }
-    if (registerPassword !== registerConfirmPassword) {
-      setRegisterError("Passwords do not match.");
-      return;
-    }
-    setRegisterLoading(true);
-    const { error } = await supabase.auth.signUp({
-      email: registerEmail,
-      password: registerPassword,
-      options: {
-        data: {
-          name: registerName,
-          username: registerUsername
-        }
-      }
-    });
-    setRegisterLoading(false);
-    if (error) {
-      setRegisterError(error.message);
-    } else {
-      setEmail(registerEmail);
-      setPassword(registerPassword);
-      setIsRegister(false);
-      setRegisterName("");
-      setRegisterUsername("");
-      setRegisterEmail("");
-      setRegisterPassword("");
-      setRegisterConfirmPassword("");
-      setRegisterError("");
-      setTimeout(() => {
-        document.getElementById("login-form")?.scrollIntoView({ behavior: "smooth" });
-      }, 100);
-    }
-  };
-
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="bg-white p-8 rounded shadow-md w-full max-w-sm space-y-4">
-        {isRegister ? (
-          <form onSubmit={handleRegister} className="space-y-4">
-            <h2 className="text-2xl font-bold mb-4">Register</h2>
-            <input
-              type="text"
-              placeholder="Full Name"
-              value={registerName}
-              onChange={e => setRegisterName(e.target.value)}
-              className="w-full px-3 py-2 border rounded"
-              required
-            />
-            <input
-              type="text"
-              placeholder="Username"
-              value={registerUsername}
-              onChange={e => setRegisterUsername(e.target.value)}
-              className="w-full px-3 py-2 border rounded"
-              required
-            />
-            <input
-              type="email"
-              placeholder="Email"
-              value={registerEmail}
-              onChange={e => setRegisterEmail(e.target.value)}
-              className="w-full px-3 py-2 border rounded"
-              required
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={registerPassword}
-              onChange={e => setRegisterPassword(e.target.value)}
-              className="w-full px-3 py-2 border rounded"
-              required
-            />
-            <input
-              type="password"
-              placeholder="Confirm Password"
-              value={registerConfirmPassword}
-              onChange={e => setRegisterConfirmPassword(e.target.value)}
-              className="w-full px-3 py-2 border rounded"
-              required
-            />
-            {registerError && <div className="text-red-500 text-sm">{registerError}</div>}
-            <Button type="submit" className="w-full" disabled={registerLoading}>
-              {registerLoading ? "Registering..." : "Register"}
-            </Button>
-            <div className="text-sm text-center">
-              Already have an account?{' '}
-              <button type="button" className="text-primary underline" onClick={() => setIsRegister(false)}>
-                Login
-              </button>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1">
+          <div className="flex items-center justify-center mb-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+              <LogIn className="h-6 w-6 text-primary" />
             </div>
-          </form>
-        ) : (
-          <form onSubmit={handleLogin} id="login-form" className="space-y-4">
-            <h2 className="text-2xl font-bold mb-4">User Login</h2>
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border rounded"
-              required
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border rounded"
-              required
-            />
-            {error && <div className="text-red-500 text-sm">{error}</div>}
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Logging in..." : "Login"}
-            </Button>
-            <div className="text-sm text-center">
-              Don't have an account?{' '}
-              <button type="button" className="text-primary underline" onClick={() => setIsRegister(true)}>
-                Register
-              </button>
+          </div>
+          <CardTitle className="text-2xl font-bold text-center">Welcome Back</CardTitle>
+          <CardDescription className="text-center">
+            Sign in to your Newsleak account
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleLogin} className="space-y-4">
+            {error && (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="john@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="pl-10"
+                  required
+                />
+              </div>
             </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Password</Label>
+                <Link 
+                  to="/forgot-password" 
+                  className="text-xs text-primary hover:underline"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="pl-10"
+                  required
+                />
+              </div>
+            </div>
+
+            <Button 
+              type="submit" 
+              className="w-full" 
+              disabled={loading}
+              size="lg"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Signing in...
+                </>
+              ) : (
+                <>
+                  <LogIn className="mr-2 h-4 w-4" />
+                  Sign In
+                </>
+              )}
+            </Button>
           </form>
-        )}
-      </div>
+        </CardContent>
+        <CardFooter className="flex flex-col space-y-2">
+          <div className="text-sm text-center text-muted-foreground">
+            Don't have an account?{' '}
+            <Link to="/signup" className="text-primary hover:underline font-medium">
+              Create one now
+            </Link>
+          </div>
+        </CardFooter>
+      </Card>
     </div>
   );
 }
