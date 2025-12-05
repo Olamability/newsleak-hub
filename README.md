@@ -2,9 +2,18 @@
 
 A modern, performant, production-ready news aggregation platform built with React, TypeScript, and Supabase.
 
+## 🚀 New to Newsleak? Start Here!
+
+- **⚡ [QUICK_START_GUIDE.md](./QUICK_START_GUIDE.md)** - Get running in 15 minutes
+- **📘 [COMPLETE_BACKEND_INTEGRATION_GUIDE.md](./COMPLETE_BACKEND_INTEGRATION_GUIDE.md)** - Full setup guide
+- **🔌 [API_FUNCTIONS_REFERENCE.md](./API_FUNCTIONS_REFERENCE.md)** - API documentation
+- **📊 [BACKEND_IMPLEMENTATION_STATUS.md](./BACKEND_IMPLEMENTATION_STATUS.md)** - Architecture overview
+
 ## 🎯 Overview
 
 Newsleak is a comprehensive news aggregation platform that provides users with personalized, fast, and visually appealing news from multiple sources. Built to production standards with scalability, performance, and user experience as top priorities.
+
+**All features work with real data** - no mock data or placeholders!
 
 ## ✨ Key Features
 
@@ -128,30 +137,36 @@ See [PERFORMANCE_IMPROVEMENTS.md](./PERFORMANCE_IMPROVEMENTS.md) for details.
 
 ## Quick Start
 
-### 🚀 Automated Setup (Recommended for Beginners)
+### 🚀 Quick Setup (Recommended - 15 minutes)
 
-The easiest way to get started:
+**New users start here:** [QUICK_START_GUIDE.md](./QUICK_START_GUIDE.md)
 
 ```sh
-# Clone the repository
+# 1. Clone and install
 git clone https://github.com/Olamability/newsleak-hub.git
 cd newsleak-hub
+npm install --legacy-peer-deps
 
-# Run the interactive setup wizard
-bash scripts/quick-start.sh
+# 2. Set up database (follow QUICK_START_GUIDE.md)
+#    - Create Supabase project
+#    - Run supabase_complete_schema.sql
+#    - Add RSS feeds
+
+# 3. Configure environment
+cp .env.example .env
+# Edit .env with your Supabase & Firebase credentials
+
+# 4. Start app
+npm run dev
 ```
 
-The script will guide you through:
-1. ✅ Checking Node.js installation
-2. ✅ Installing dependencies
-3. ✅ Creating .env configuration
-4. ✅ Testing the build
-5. ✅ Next steps guidance
+Visit: **http://localhost:8080**
 
-**After the automated setup**, follow the **[Complete Setup Guide](./COMPLETE_SETUP_GUIDE.md)** to:
-- Set up your Supabase database
-- Configure Firebase authentication
-- Deploy to production
+**Complete guides:**
+- ⚡ **Quickest**: [QUICK_START_GUIDE.md](./QUICK_START_GUIDE.md) - 15 minutes
+- 📘 **Complete**: [COMPLETE_BACKEND_INTEGRATION_GUIDE.md](./COMPLETE_BACKEND_INTEGRATION_GUIDE.md) - Full details
+- 🔌 **API Docs**: [API_FUNCTIONS_REFERENCE.md](./API_FUNCTIONS_REFERENCE.md) - All endpoints
+- 📝 **SQL Scripts**: [SAMPLE_DATA_SQL.md](./SAMPLE_DATA_SQL.md) - Ready-to-use queries
 
 ### 📖 Manual Setup
 
@@ -189,28 +204,32 @@ npm run dev
 ## 📚 Documentation
 
 ### 🌟 Getting Started (Read These First!)
-- **[📘 Complete Setup Guide](./COMPLETE_SETUP_GUIDE.md)** - **START HERE!** - Step-by-step guide for absolute beginners
-- **[⚡ Quick Start Backend](./QUICK_START_BACKEND.md)** - **NEW!** - Quick fix for database/RSS issues
-- **[🔧 Fix Summary](./FIX_SUMMARY.md)** - **NEW!** - Recent fixes and improvements
-- **[✅ Production Checklist](./PRODUCTION_CHECKLIST.md)** - Pre-deployment checklist
-- **[🔧 Scripts README](./scripts/README.md)** - Helper scripts documentation
+- **[⚡ Quick Start Guide](./QUICK_START_GUIDE.md)** - **START HERE!** - Get running in 15 minutes
+- **[📘 Complete Backend Integration Guide](./COMPLETE_BACKEND_INTEGRATION_GUIDE.md)** - **NEW!** - Full setup from scratch
+- **[🔌 API Functions Reference](./API_FUNCTIONS_REFERENCE.md)** - **NEW!** - Complete API documentation
+- **[📊 Backend Implementation Status](./BACKEND_IMPLEMENTATION_STATUS.md)** - **NEW!** - Architecture overview
+- **[📝 Sample Data SQL](./SAMPLE_DATA_SQL.md)** - **NEW!** - Ready-to-use SQL scripts
 
-### Database & Backend
-- **[Backend Setup Guide](./BACKEND_SETUP_GUIDE.md)** - **NEW!** - Comprehensive backend configuration
-- **[Exact Setup Data](./EXACT_SETUP_DATA.md)** - **NEW!** - Project-specific setup values
+### Database & Backend (Legacy Guides)
+- [Backend Setup Guide](./BACKEND_SETUP_GUIDE.md) - Comprehensive backend configuration
+- [Exact Setup Data](./EXACT_SETUP_DATA.md) - Project-specific setup values
 - [Database Setup Guide](./SUPABASE_DATABASE_SETUP.md) - Supabase database setup
 - [Database Schema](./DATABASE_SCHEMA.md) - Complete schema documentation
+- [Quick Start Backend](./QUICK_START_BACKEND.md) - Quick fix for database/RSS issues
+
+### Deployment & Production
 - [Production Setup Guide](./PRODUCTION_SETUP_GUIDE.md) - Advanced deployment guide
-- [Troubleshooting Guide](./TROUBLESHOOTING.md) - Common issues and solutions
-
-### API & Integration
-- [API Documentation](./API_DOCUMENTATION.md) - API reference and usage
+- [Production Checklist](./PRODUCTION_CHECKLIST.md) - Pre-deployment checklist
 - [Deployment Guide](./DEPLOYMENT_GUIDE.md) - Edge functions deployment
-- [Supabase Setup](./SUPABASE_SETUP_GUIDE.md) - Additional Supabase configuration
 
-### Performance & Optimization
+### Additional Resources
+- [API Documentation](./API_DOCUMENTATION.md) - API reference and usage
+- [Supabase Setup](./SUPABASE_SETUP_GUIDE.md) - Additional Supabase configuration
+- [Troubleshooting Guide](./TROUBLESHOOTING.md) - Common issues and solutions
 - [Performance Improvements](./PERFORMANCE_IMPROVEMENTS.md) - Optimization details
 - [Tech Stack](./TECH_STACK.md) - Technologies used
+- [Fix Summary](./FIX_SUMMARY.md) - Recent fixes and improvements
+- [Scripts README](./scripts/README.md) - Helper scripts documentation
 
 ## 🎨 Features Documentation
 
