@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabaseClient';
 import { loadNews } from '@/lib/newsStorage';
+import { loadFeeds } from '@/lib/feedStorage';
 
 /**
  * Custom hook to fetch all news articles with caching
@@ -33,15 +33,9 @@ export function useArticle(id: string | undefined) {
         if (found) return found;
       }
       
-      // Fallback to fetching single article from Supabase
-      const { data, error } = await supabase
-        .from('news_articles')
-        .select('*')
-        .eq('id', id)
-        .single();
-      
-      if (error) throw error;
-      return data;
+      // Fallback to loading from local storage
+      const allArticles = await loadNews();
+      return allArticles.find((article: any) => article.id === id) || null;
     },
     enabled: !!id, // Only run query if id exists
     staleTime: 5 * 60 * 1000,
@@ -55,11 +49,7 @@ export function useArticle(id: string | undefined) {
 export function useFeeds() {
   return useQuery({
     queryKey: ['feeds'],
-    queryFn: async () => {
-      const { data, error } = await supabase.from('rss_feeds').select('*');
-      if (error) throw error;
-      return data || [];
-    },
+    queryFn: loadFeeds,
     staleTime: 10 * 60 * 1000, // Feeds change less frequently
     gcTime: 20 * 60 * 1000,
   });

@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { Header } from "@/components/Header";
 import { NewsCard } from "@/components/NewsCard";
-import { getBookmarks, removeBookmark } from "@/lib/bookmarks";
+import { getBookmarks, removeBookmark } from "@/lib/localBookmarks";
 import { getLocalBookmarks, removeLocalBookmark } from "@/utils/localBookmarks";
 import { useArticleLikes } from "@/hooks/useBatchedData";
 import { useAuth } from "@/components/AuthProvider";

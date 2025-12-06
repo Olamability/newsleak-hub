@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/components/AuthProvider";
-import { getRooms, getComments, addComment } from "@/lib/comments";
+import { getRooms, getComments, addComment } from "@/lib/localComments";
 import { Button } from "@/components/ui/button";
 
 export default function Rooms() {

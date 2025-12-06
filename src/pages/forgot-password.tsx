@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { supabase } from '@/lib/supabaseClient';
+import { resetPassword } from '@/lib/localAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -28,19 +28,10 @@ export default function ForgotPassword() {
     }
 
     try {
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
-
-      if (resetError) {
-        setError(resetError.message);
-        setLoading(false);
-        return;
-      }
-
+      await resetPassword(email);
       setSuccess(true);
     } catch (err: any) {
-      setError(err.message || 'Failed to send reset email');
+      setError(err.message || 'Failed to reset password');
     } finally {
       setLoading(false);
     }
@@ -54,14 +45,14 @@ export default function ForgotPassword() {
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
               <CheckCircle className="h-8 w-8 text-green-600" />
             </div>
-            <CardTitle className="text-2xl">Check Your Email</CardTitle>
+            <CardTitle className="text-2xl">Password Reset Request Received</CardTitle>
             <CardDescription>
-              We've sent a password reset link to <strong>{email}</strong>
+              A password reset link would be sent to <strong>{email}</strong> if it exists in our system.
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center text-sm text-muted-foreground">
-            <p>Click the link in the email to reset your password.</p>
-            <p className="mt-2">Didn't receive the email? Check your spam folder.</p>
+            <p>In this demo version, password reset is simulated locally.</p>
+            <p className="mt-2">Please contact support or create a new account if needed.</p>
           </CardContent>
           <CardFooter className="flex justify-center">
             <Button 
@@ -89,7 +80,7 @@ export default function ForgotPassword() {
           </div>
           <CardTitle className="text-2xl font-bold text-center">Forgot Password?</CardTitle>
           <CardDescription className="text-center">
-            Enter your email and we'll send you a link to reset your password
+            Enter your email and we'll help you reset your password
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -130,7 +121,7 @@ export default function ForgotPassword() {
               ) : (
                 <>
                   <Mail className="mr-2 h-4 w-4" />
-                  Send Reset Link
+                  Send Reset Request
                 </>
               )}
             </Button>

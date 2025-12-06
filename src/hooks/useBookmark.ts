@@ -1,10 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabaseClient';
 import { 
   isBookmarked, 
   addBookmark, 
   removeBookmark 
-} from '@/lib/bookmarks';
+} from '@/lib/localBookmarks';
 import {
   isLocalBookmarked,
   addLocalBookmark,

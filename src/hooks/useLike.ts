@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { likeArticle, hasUserLiked, getArticleLikes } from '@/lib/articleAnalytics';
+import { likeArticle, hasUserLiked, getArticleLikes, unlikeArticle } from '@/lib/localLikes';
 
 /**
  * Hook to get article like status and count (with caching)

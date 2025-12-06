@@ -1,37 +1,34 @@
 import { useState } from 'react';
-import { adminSignIn } from '@/lib/adminAuth';
+import { signIn } from '@/lib/localAuth';
+import { useNavigate } from 'react-router-dom';
 
-export default function AdminLogin() {
+export default function AdminLoginPage() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
     try {
-  await adminSignIn(email, password);
-  window.location.href = '/admin/add-feed';
+      await signIn(email, password);
+      navigate('/admin');
     } catch (err: any) {
       setError(err.message || 'Login failed');
-    } finally {
-      setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded shadow-md w-full max-w-sm space-y-4">
+      <form onSubmit={handleSubmit} className="bg-white p-8 rounded shadow w-full max-w-sm">
         <h1 className="text-2xl font-bold mb-4">Admin Login</h1>
-        {error && <div className="text-red-500 text-sm">{error}</div>}
+        {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
         <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={e => setEmail(e.target.value)}
-          className="w-full border px-3 py-2 rounded mb-2"
+          className="w-full border px-3 py-2 rounded mb-4"
           required
         />
         <input
@@ -39,20 +36,12 @@ export default function AdminLogin() {
           placeholder="Password"
           value={password}
           onChange={e => setPassword(e.target.value)}
-          className="w-full border px-3 py-2 rounded mb-2"
+          className="w-full border px-3 py-2 rounded mb-4"
           required
         />
-        <button
-          type="submit"
-          className="w-full bg-primary text-white py-2 rounded hover:bg-primary/90"
-          disabled={loading}
-        >
-          {loading ? 'Logging in...' : 'Login'}
+        <button type="submit" className="w-full bg-primary text-white py-2 rounded">
+          Login
         </button>
-        <div className="text-sm text-center mt-2">
-          Don't have an account?{' '}
-          <a href="/admin/signup" className="text-primary underline hover:opacity-80">Sign Up</a>
-        </div>
       </form>
     </div>
   );
