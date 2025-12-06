@@ -149,6 +149,20 @@ export const NewsCard = (props: NewsCardProps) => {
         <h3 className="text-base font-medium leading-snug line-clamp-3 mb-2">
           {title}
         </h3>
+        {/* Article snippet/preview */}
+        <div className="text-xs text-muted-foreground line-clamp-2 mb-1">
+          {(() => {
+            const html = props.content || (article && (article.summary || article.content)) || '';
+            // Try to extract first paragraph if HTML
+            const matches = html.match(/<p>([\s\S]*?)<\/p>/i);
+            if (matches && matches.length > 0) {
+              return <span dangerouslySetInnerHTML={{ __html: matches[0] }} />;
+            } else {
+              // Fallback: show first 120 chars, no HTML
+              return (html.replace(/<[^>]+>/g, '').slice(0, 120)) + (html.length > 120 ? '...' : '');
+            }
+          })()}
+        </div>
         <div className="flex items-center gap-4 text-xs text-muted-foreground mt-2">
           <button 
             className={`flex items-center gap-1 hover:text-primary focus:text-primary transition-colors ${likeStatus.isLiked ? 'text-primary' : ''}`}

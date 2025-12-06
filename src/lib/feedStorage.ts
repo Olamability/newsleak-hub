@@ -1,42 +1,55 @@
 
+
 import { RSSFeed } from './rssParser';
 import { supabase } from './supabaseClient';
 
-// All feed functions are now async and operate on the 'feeds' table in Supabase
-// Each feed row: id, name, url, category, enabled, user_id, lastFetched
+// All feed functions now operate on the 'rss_feeds' table in Supabase
+// Each feed row: id, source, url, category, is_active, description, logo_url, website_url, etc.
 
-export const loadFeeds = async (userId: string): Promise<RSSFeed[]> => {
+export const loadFeeds = async (): Promise<RSSFeed[]> => {
   const { data, error } = await supabase
-    .from('feeds')
+    .from('rss_feeds')
     .select('*')
-    .eq('user_id', userId)
     .order('created_at', { ascending: true });
   if (error) throw error;
   return data || [];
 };
 
-export const addFeed = async (feed: Omit<RSSFeed, 'id'>, userId: string): Promise<void> => {
+export const addFeed = async (feed: Omit<RSSFeed, 'id'>): Promise<void> => {
+  // Map 'name' to 'source' for compatibility
   const { error } = await supabase
-    .from('feeds')
-    .insert([{ ...feed, user_id: userId }]);
+    .from('rss_feeds')
+    .insert([{ 
+      source: feed.name || feed.source, 
+      url: feed.url, 
+      category: feed.category, 
+      is_active: true, 
+      description: feed.description || '',
+      logo_url: feed.logo_url || null,
+      website_url: feed.website_url || null
+    }]);
   if (error) throw error;
 };
 
-export const updateFeed = async (id: string, updates: Partial<RSSFeed>, userId: string): Promise<void> => {
+export const updateFeed = async (id: string, updates: Partial<RSSFeed>): Promise<void> => {
+  // Map 'name' to 'source' if present
+  const mappedUpdates = { ...updates };
+  if ('name' in mappedUpdates) {
+    mappedUpdates.source = mappedUpdates.name;
+    delete mappedUpdates.name;
+  }
   const { error } = await supabase
-    .from('feeds')
-    .update(updates)
-    .eq('id', id)
-    .eq('user_id', userId);
+    .from('rss_feeds')
+    .update(mappedUpdates)
+    .eq('id', id);
   if (error) throw error;
 };
 
-export const deleteFeed = async (id: string, userId: string): Promise<void> => {
+export const deleteFeed = async (id: string): Promise<void> => {
   const { error } = await supabase
-    .from('feeds')
+    .from('rss_feeds')
     .delete()
-    .eq('id', id)
-    .eq('user_id', userId);
+    .eq('id', id);
   if (error) throw error;
 };
 

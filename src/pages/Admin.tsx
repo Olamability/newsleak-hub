@@ -59,7 +59,7 @@ export default function Admin() {
         setIsAdminUser(admin);
         setAdminChecked(true);
         if (admin) {
-          const loadedFeeds = await loadFeeds(user.id);
+          const loadedFeeds = await loadFeeds();
           setFeeds(loadedFeeds);
           const loadedArticles = await loadNews();
           setArticles(loadedArticles);
@@ -82,16 +82,13 @@ export default function Admin() {
       return;
     }
     try {
-      await addFeed(
-        {
-          name: newFeed.name,
-          url: newFeed.url,
-          category: newFeed.category,
-          enabled: true,
-        },
-        user.id
-      );
-      const loaded = await loadFeeds(user.id);
+      await addFeed({
+        name: newFeed.name,
+        url: newFeed.url,
+        category: newFeed.category,
+        enabled: true,
+      });
+      const loaded = await loadFeeds();
       setFeeds(loaded);
       setNewFeed({ name: "", url: "", category: "For you" });
       toast({
@@ -109,8 +106,8 @@ export default function Admin() {
 
   const handleDeleteFeed = async (id: string) => {
     try {
-      await deleteFeed(id, user.id);
-      const loaded = await loadFeeds(user.id);
+      await deleteFeed(id);
+      const loaded = await loadFeeds();
       setFeeds(loaded);
       toast({
         title: "Deleted",
@@ -127,8 +124,8 @@ export default function Admin() {
 
   const handleToggleFeed = async (id: string, enabled: boolean) => {
     try {
-      await updateFeed(id, { enabled }, user.id);
-      const loaded = await loadFeeds(user.id);
+      await updateFeed(id, { enabled });
+      const loaded = await loadFeeds();
       setFeeds(loaded);
     } catch (e: any) {
       toast({
@@ -283,8 +280,8 @@ export default function Admin() {
                             onSubmit={async (e) => {
                               e.preventDefault();
                               try {
-                                await updateFeed(feed.id, editData, user.id);
-                                const loaded = await loadFeeds(user.id);
+                                await updateFeed(feed.id, editData);
+                                const loaded = await loadFeeds();
                                 setFeeds(loaded);
                                 setEditingFeedId(null);
                                 toast({ title: "Feed updated" });
@@ -344,7 +341,7 @@ export default function Admin() {
                         ) : (
                           <>
                             <h3 className="font-medium flex items-center gap-2">
-                              {feed.name}
+                              {feed.name || feed.source}
                               <Button
                                 size="sm"
                                 variant="ghost"
