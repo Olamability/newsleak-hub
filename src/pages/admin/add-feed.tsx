@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { fetchFeeds } from '@/lib/rssFetcher';
-import { supabase } from '@/lib/supabaseClient';
-import { getAdminSession } from '@/lib/adminAuth';
+import { addFeed } from '@/lib/feedStorage';
 
 const categories = [
   'For you', 'Football', 'Entertainment', 'Politics', 'Sports', 'Technology', 'Business', 'Lifestyle', 'Fashion&Beauty'
@@ -21,29 +20,30 @@ export default function AddFeed() {
     setError('');
     setSuccess('');
     try {
-      const session = getAdminSession();
-      if (!session) {
-        window.location.href = '/admin/login';
-        return;
-      }
-      const { error } = await supabase.from('rss_feeds').insert({ url, source, category });
-      if (error) throw error;
+      await addFeed({ 
+        name: source, 
+        source, 
+        url, 
+        category,
+        is_active: true,
+      });
+      
       // Automatically fetch news after adding feed
       try {
         const result = await fetchFeeds();
-        // If the Edge Function returns an error or non-success, show error
-        if (result && result.error) {
-          throw new Error(result.error.message || 'Edge Function error');
+        if (result && result.success) {
+          setSuccess('Feed added and news fetched!');
+        } else {
+          setSuccess('Feed added successfully!');
         }
-        setSuccess('Feed added and news fetched!');
         setUrl('');
         setSource('');
         setCategory(categories[0]);
       } catch (edgeErr: any) {
-        setError(edgeErr.message || 'Failed to fetch news from Edge Function');
+        setError(edgeErr.message || 'Failed to fetch news from feeds');
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to add feed or fetch news');
+      setError(err.message || 'Failed to add feed');
     } finally {
       setLoading(false);
     }

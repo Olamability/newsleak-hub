@@ -1,9 +1,6 @@
-import { loadNews } from "@/lib/newsStorage";
-
-export async function getFeedAnalytics(feedUrl: string, userId: string) {
-  const articles = await loadNews(userId);
-  const count = articles.filter(a => a.link && a.link.startsWith(feedUrl)).length;
-  // Fallback: count by source if link doesn't match
-  // const count = articles.filter(a => a.source === feedName).length;
-  return { count };
+// Local feed analytics stub
+export async function trackFeedInteraction(feedId: string, userId?: string) {
+  const interactions = JSON.parse(localStorage.getItem('newsleak_feed_interactions') || '[]');
+  interactions.push({ feedId, userId: userId || 'anonymous', timestamp: new Date().toISOString() });
+  localStorage.setItem('newsleak_feed_interactions', JSON.stringify(interactions));
 }

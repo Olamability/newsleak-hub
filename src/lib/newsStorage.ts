@@ -1,6 +1,3 @@
-import { createClient } from '@supabase/supabase-js';
-import { supabase } from './supabaseClient';
-
 export interface NewsArticle {
   id: string;
   title: string;
@@ -11,40 +8,34 @@ export interface NewsArticle {
   published: string;
   summary?: string;
   favicon?: string;
+  likes?: number;
+  comments?: number;
 }
 
-const NEWS_TABLE = 'news_articles';
+const NEWS_STORAGE_KEY = 'newsleak_news_articles';
 
 export async function loadNews(): Promise<NewsArticle[]> {
-  const { data, error } = await supabase
-    .from(NEWS_TABLE)
-    .select('*')
-    .order('published', { ascending: false });
-  if (error) throw error;
-  return data || [];
+  const stored = localStorage.getItem(NEWS_STORAGE_KEY);
+  return stored ? JSON.parse(stored) : [];
 }
 
-export async function addNews(article: NewsArticle, userId: string) {
-  const { error } = await supabase
-    .from(NEWS_TABLE)
-    .insert([{ ...article, user_id: userId }]);
-  if (error) throw error;
+export async function addNews(article: NewsArticle, userId?: string) {
+  const articles = await loadNews();
+  articles.unshift(article);
+  localStorage.setItem(NEWS_STORAGE_KEY, JSON.stringify(articles));
 }
 
-export async function deleteNews(id: string, userId: string) {
-  const { error } = await supabase
-    .from(NEWS_TABLE)
-    .delete()
-    .eq('id', id)
-    .eq('user_id', userId);
-  if (error) throw error;
+export async function deleteNews(id: string, userId?: string) {
+  const articles = await loadNews();
+  const filtered = articles.filter(a => a.id !== id);
+  localStorage.setItem(NEWS_STORAGE_KEY, JSON.stringify(filtered));
 }
 
-export async function updateNews(id: string, updates: Partial<NewsArticle>, userId: string) {
-  const { error } = await supabase
-    .from(NEWS_TABLE)
-    .update(updates)
-    .eq('id', id)
-    .eq('user_id', userId);
-  if (error) throw error;
+export async function updateNews(id: string, updates: Partial<NewsArticle>, userId?: string) {
+  const articles = await loadNews();
+  const index = articles.findIndex(a => a.id === id);
+  if (index !== -1) {
+    articles[index] = { ...articles[index], ...updates };
+    localStorage.setItem(NEWS_STORAGE_KEY, JSON.stringify(articles));
+  }
 }

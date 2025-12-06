@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getComments, addComment, getRooms } from "@/lib/comments";
+import { getComments, addComment, getRooms } from "@/lib/localComments";
 import { useAuth } from "@/components/AuthProvider";
 
 interface CommentsSectionProps {

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { supabase } from '@/lib/supabaseClient';
+import { signUp } from '@/lib/localAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -54,24 +54,7 @@ export default function Signup() {
     }
 
     try {
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          data: {
-            name: formData.name,
-            username: formData.username,
-            display_name: formData.name,
-          }
-        }
-      });
-
-      if (signUpError) {
-        setError(signUpError.message);
-        setLoading(false);
-        return;
-      }
-
+      await signUp(formData.email, formData.password);
       setSuccess(true);
       
       // Redirect to login after 2 seconds

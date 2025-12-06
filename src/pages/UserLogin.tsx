@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { supabase } from "@/lib/supabaseClient";
+import { signIn } from "@/lib/localAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, LogIn, Mail, Lock, UserPlus } from "lucide-react";
+import { Loader2, LogIn, Mail, Lock } from "lucide-react";
 
 
 export default function UserLogin() {
@@ -22,14 +22,14 @@ export default function UserLogin() {
     setLoading(true);
     setError("");
     
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-    
-    if (signInError) {
-      setError(signInError.message);
-    } else {
+    try {
+      await signIn(email, password);
       const from = (location.state as any)?.from || "/";
       navigate(from, { replace: true });
+    } catch (signInError: any) {
+      setError(signInError.message || 'Login failed');
+    } finally {
+      setLoading(false);
     }
   };
 

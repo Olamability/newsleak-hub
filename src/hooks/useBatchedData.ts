@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabaseClient';
+import { getArticleLikes, hasUserLiked } from '@/lib/localLikes';
+import { isBookmarked } from '@/lib/localBookmarks';
 
 /**
  * Batch fetch article likes for multiple articles at once
@@ -11,25 +12,21 @@ export function useArticleLikes(articleIds: string[]) {
     queryFn: async () => {
       if (articleIds.length === 0) return {};
       
-      const { data, error } = await supabase
-        .from('article_likes')
-        .select('article_id, user_id')
-        .in('article_id', articleIds);
-      
-      if (error) {
-        console.error('Error fetching batched likes:', error);
-        throw error;
-      }
-      
-      // Group by article_id
+      // Group by article_id using local storage
       const likesByArticle: Record<string, { count: number; userIds: string[] }> = {};
       
-      (data || []).forEach((like: any) => {
-        if (!likesByArticle[like.article_id]) {
-          likesByArticle[like.article_id] = { count: 0, userIds: [] };
+      // Get all likes from local storage
+      const likesData = localStorage.getItem('newsleak_article_likes');
+      const allLikes = likesData ? JSON.parse(likesData) : [];
+      
+      allLikes.forEach((like: any) => {
+        if (articleIds.includes(like.articleId)) {
+          if (!likesByArticle[like.articleId]) {
+            likesByArticle[like.articleId] = { count: 0, userIds: [] };
+          }
+          likesByArticle[like.articleId].count++;
+          likesByArticle[like.articleId].userIds.push(like.userId);
         }
-        likesByArticle[like.article_id].count++;
-        likesByArticle[like.article_id].userIds.push(like.user_id);
       });
       
       return likesByArticle;
@@ -49,16 +46,17 @@ export function useBookmarks(articleIds: string[], userId?: string) {
     queryFn: async () => {
       if (!userId || articleIds.length === 0) return {};
       
-      const { data, error } = await supabase
-        .from('bookmarks')
-        .select('article_id')
-        .eq('user_id', userId)
-        .in('article_id', articleIds);
+      // Get bookmarks from local storage
+      const bookmarksData = localStorage.getItem('newsleak_bookmarks');
+      const allBookmarks = bookmarksData ? JSON.parse(bookmarksData) : [];
       
-      if (error) throw error;
+      // Filter for this user and these articles
+      const userBookmarks = allBookmarks.filter(
+        (b: any) => b.userId === userId && articleIds.includes(b.articleId)
+      );
       
       // Convert to Set for O(1) lookup
-      const bookmarkedIds = new Set((data || []).map((b: any) => b.article_id));
+      const bookmarkedIds = new Set(userBookmarks.map((b: any) => b.articleId));
       
       // Convert to object for easier consumption
       const bookmarksByArticle: Record<string, boolean> = {};

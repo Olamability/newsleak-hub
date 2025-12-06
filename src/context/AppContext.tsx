@@ -17,39 +17,23 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [feeds, setFeeds] = useState<any[]>([]);
 
   useEffect(() => {
-    if (user) {
-      // Optionally: fetch bookmarks from Supabase here if needed
-      setBookmarks([]); // Placeholder for Supabase bookmarks
-    } else {
-      setBookmarks(getLocalBookmarks());
-    }
+    // Always use local bookmarks
+    setBookmarks(getLocalBookmarks());
   }, [user]);
 
   const addBookmarkCtx = (article: any) => {
-    if (user) {
-      // Optionally: add to Supabase
-    } else {
-      addLocalBookmark(article);
-      setBookmarks(getLocalBookmarks());
-    }
+    addLocalBookmark(article);
+    setBookmarks(getLocalBookmarks());
   };
 
   const removeBookmarkCtx = (id: string) => {
-    if (user) {
-      // Optionally: remove from Supabase
-    } else {
-      removeLocalBookmark(id);
-      setBookmarks(getLocalBookmarks());
-    }
+    removeLocalBookmark(id);
+    setBookmarks(getLocalBookmarks());
   };
 
   const refreshFeeds = async () => {
-    if (user) {
-      const loaded = await loadFeeds(user.id);
-      setFeeds(loaded);
-    } else {
-      setFeeds([]);
-    }
+    const loaded = await loadFeeds();
+    setFeeds(loaded);
   };
 
   useEffect(() => {
