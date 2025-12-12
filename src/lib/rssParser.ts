@@ -7,6 +7,11 @@ export interface RSSFeed {
   category: string;
   enabled: boolean;
   lastFetched?: string;
+  source?: string;
+  description?: string;
+  logo_url?: string;
+  website_url?: string;
+  favicon?: string;
 }
 
 // CORS proxy for RSS feeds (frontend limitation workaround)

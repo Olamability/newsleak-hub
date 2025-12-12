@@ -44,10 +44,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const refreshFeeds = async () => {
-    if (user) {
-      const loaded = await loadFeeds(user.id);
+    try {
+      const loaded = await loadFeeds();
       setFeeds(loaded);
-    } else {
+    } catch {
       setFeeds([]);
     }
   };

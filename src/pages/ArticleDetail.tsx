@@ -11,6 +11,16 @@ import { useAuth } from "@/components/AuthProvider";
 import { CommentsSection } from "@/components/CommentsSection";
 import { Skeleton } from "@/components/ui/skeleton";
 
+// Helper to get time ago string
+function getTimeAgo(published: string) {
+  const date = new Date(published);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  if (diffHours < 1) return 'Just now';
+  if (diffHours < 24) return `${diffHours}h`;
+  return `${Math.floor(diffHours / 24)}d`;
+}
 
 const ArticleDetail = () => {
   const navigate = useNavigate();
@@ -99,15 +109,15 @@ const ArticleDetail = () => {
     <div className="min-h-screen bg-background">
       <Helmet>
         <title>{article.title} | Newsleak</title>
-        <meta name="description" content={article.content?.slice(0, 160) || article.title} />
+        <meta name="description" content={article.summary?.slice(0, 160) || article.title} />
         <meta property="og:title" content={article.title} />
-        <meta property="og:description" content={article.content?.slice(0, 160) || article.title} />
+        <meta property="og:description" content={article.summary?.slice(0, 160) || article.title} />
         <meta property="og:type" content="article" />
         <meta property="og:image" content={article.image} />
         <meta property="og:url" content={pageUrl} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={article.title} />
-        <meta name="twitter:description" content={article.content?.slice(0, 160) || article.title} />
+        <meta name="twitter:description" content={article.summary?.slice(0, 160) || article.title} />
         <meta name="twitter:image" content={article.image} />
       </Helmet>
   <Header siteName="Newsleak" />
@@ -129,19 +139,17 @@ const ArticleDetail = () => {
                   // Always prefer a real source, but fallback to domain if missing or 'Unknown Source'
                   let source = '';
                   if (article.source && article.source !== 'Unknown Source') source = article.source;
-                  else if (article.feed_source) source = article.feed_source;
-                  else if (article.site) source = article.site;
                   if ((!source || source.trim().toLowerCase().includes('unknown')) && article.link) {
                     try {
                       const url = new URL(article.link);
                       source = url.hostname.replace(/^www\./, '');
                     } catch {}
                   }
-                  return source;
+                  return source || 'Unknown Source';
                 })()
               }</span>
               <span className="mx-2">·</span>
-              <span>{article.time}</span>
+              <span>{article.published ? getTimeAgo(article.published) : ''}</span>
             </div>
             <h1 className="text-3xl font-bold mb-4">
               {article.title}
@@ -158,7 +166,7 @@ const ArticleDetail = () => {
           <div className="prose max-w-none mb-8">
             {/* Show only a preview/snippet, not full article, and render HTML safely */}
             {(() => {
-              const html = article.summary || article.content || '';
+              const html = article.summary || '';
               // Extract only the first paragraph
               const matches = html.match(/<p>([\s\S]*?)<\/p>/i);
               if (matches && matches.length > 0) {

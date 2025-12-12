@@ -121,7 +121,6 @@ export const onForegroundMessage = (callback: (payload: any) => void) => {
           {
             body: payload.notification.body,
             icon: payload.notification.icon || '/icon-192.png',
-            image: payload.notification.image,
             data: payload.data,
             tag: payload.data?.articleId || 'default',
             requireInteraction: false,

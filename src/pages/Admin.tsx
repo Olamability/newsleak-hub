@@ -341,7 +341,7 @@ export default function Admin() {
                         ) : (
                           <>
                             <h3 className="font-medium flex items-center gap-2">
-                              {feed.name || feed.source}
+                              {feed.name}
                               <Button
                                 size="sm"
                                 variant="ghost"

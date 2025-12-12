@@ -16,7 +16,7 @@ export default function Rooms() {
     (async () => {
       setLoading(true);
       try {
-        const loadedRooms = await getRooms();
+        const loadedRooms = await getRooms('');
         setRooms(loadedRooms);
         setActiveRoom(loadedRooms[0] || "");
       } catch (e: any) {
