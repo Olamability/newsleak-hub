@@ -1,4 +1,3 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.7";
 
 interface RSSFeed {
@@ -11,20 +10,91 @@ interface RSSFeed {
   last_error?: string | null;
 }
 
-serve(async (req) => {
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Content-Type": "application/json",
+};
+
+// Simple XML text extraction helper
+function extractTag(xml: string, tag: string): string {
+  const regex = new RegExp(`<${tag}[^>]*><!\\[CDATA\\[([\\s\\S]*?)\\]\\]></${tag}>|<${tag}[^>]*>([\\s\\S]*?)</${tag}>`, 'i');
+  const match = xml.match(regex);
+  if (match) {
+    return (match[1] || match[2] || '').trim();
+  }
+  return '';
+}
+
+// Extract image from various RSS sources
+function extractImage(itemXml: string): string | null {
+  // Try media:content
+  const mediaMatch = itemXml.match(/<media:content[^>]+url=["']([^"']+)["']/i);
+  if (mediaMatch) return mediaMatch[1];
+  
+  // Try media:thumbnail
+  const thumbMatch = itemXml.match(/<media:thumbnail[^>]+url=["']([^"']+)["']/i);
+  if (thumbMatch) return thumbMatch[1];
+  
+  // Try enclosure
+  const enclosureMatch = itemXml.match(/<enclosure[^>]+url=["']([^"']+)["'][^>]+type=["']image/i);
+  if (enclosureMatch) return enclosureMatch[1];
+  
+  // Try image tag
+  const imgMatch = itemXml.match(/<image>[\s\S]*?<url>([^<]+)<\/url>/i);
+  if (imgMatch) return imgMatch[1];
+  
+  // Try img tag in content
+  const contentImgMatch = itemXml.match(/<img[^>]+src=["']([^"']+)["']/i);
+  if (contentImgMatch) return contentImgMatch[1];
+  
+  return null;
+}
+
+// Parse RSS items from XML text
+function parseRSSItems(xml: string): Array<{ title: string; link: string; description: string; content: string; published: string; author: string | null; image: string | null }> {
+  const items: Array<{ title: string; link: string; description: string; content: string; published: string; author: string | null; image: string | null }> = [];
+  
+  // Match all <item> blocks
+  const itemRegex = /<item[\s\S]*?<\/item>/gi;
+  const itemMatches = xml.match(itemRegex) || [];
+  
+  for (const itemXml of itemMatches) {
+    const title = extractTag(itemXml, 'title');
+    const link = extractTag(itemXml, 'link');
+    
+    if (!title || !link) continue;
+    
+    const description = extractTag(itemXml, 'description');
+    const contentEncoded = extractTag(itemXml, 'content:encoded') || extractTag(itemXml, 'content');
+    const content = contentEncoded || description;
+    
+    let published = new Date().toISOString();
+    const pubDate = extractTag(itemXml, 'pubDate');
+    if (pubDate) {
+      try {
+        published = new Date(pubDate).toISOString();
+      } catch {
+        // Keep default
+      }
+    }
+    
+    const author = extractTag(itemXml, 'author') || extractTag(itemXml, 'dc:creator') || null;
+    const image = extractImage(itemXml);
+    
+    items.push({ title, link, description, content, published, author, image });
+  }
+  
+  return items;
+}
+
+Deno.serve(async (req) => {
   // CORS preflight handler
   if (req.method === "OPTIONS") {
-    return new Response(null, {
-      status: 204,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
-        "Access-Control-Allow-Headers": "Authorization, Content-Type",
-      },
-    });
+    return new Response(null, { headers: corsHeaders });
   }
 
-  const supabaseUrl = Deno.env.get("VITE_SUPABASE_URL");
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
   if (!supabaseUrl || !supabaseKey) {
@@ -33,10 +103,7 @@ serve(async (req) => {
         error: "Missing environment variables",
         details: "SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set"
       }), 
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      }
+      { status: 500, headers: corsHeaders }
     );
   }
 
@@ -56,13 +123,10 @@ serve(async (req) => {
 
     if (!feeds || feeds.length === 0) {
       logs.push("No active RSS feeds found in database");
-      return new Response(JSON.stringify({ status: "ok", logs, articles_added: 0 }), {
-        status: 200,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Content-Type": "application/json",
-        },
-      });
+      return new Response(
+        JSON.stringify({ status: "ok", logs, articles_added: 0 }), 
+        { status: 200, headers: corsHeaders }
+      );
     }
 
     let totalArticlesAdded = 0;
@@ -74,6 +138,7 @@ serve(async (req) => {
         const res = await fetch(feed.url, {
           headers: {
             "User-Agent": "Newsleak RSS Fetcher/1.0",
+            "Accept": "application/rss+xml, application/xml, text/xml, */*"
           },
         });
 
@@ -82,128 +147,32 @@ serve(async (req) => {
         }
 
         const xml = await res.text();
+        const items = parseRSSItems(xml);
         
-        // Parse XML using DOMParser
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(xml, "text/xml");
-
-        if (!doc) {
-          throw new Error("Failed to parse XML");
-        }
-
-        // Check for parse errors
-        const parseError = doc.querySelector("parsererror");
-        if (parseError) {
-          throw new Error(`XML parse error: ${parseError.textContent}`);
-        }
-
-        // Get all item elements
-        const items = doc.querySelectorAll("item");
         logs.push(`Found ${items.length} items in feed`);
 
         let feedArticlesAdded = 0;
 
-        for (const item of Array.from(items)) {
+        for (const item of items) {
           try {
-            // Extract title
-            const titleEl = item.querySelector("title");
-            const title = titleEl?.textContent?.trim() || "";
-
-            // Extract link
-            const linkEl = item.querySelector("link");
-            const link = linkEl?.textContent?.trim() || "";
-
-            // Skip if no title or link
-            if (!title || !link) {
-              logs.push(`Skipping item: missing title or link`);
-              continue;
-            }
-
-            // Extract description
-            const descEl = item.querySelector("description");
-            const description = descEl?.textContent?.trim() || "";
-
-            // Extract content (for RSS 2.0 with content:encoded)
-            // Try multiple approaches to find encoded content
-            let contentEl = item.querySelector("encoded");
-            if (!contentEl) {
-              // Try with namespace prefix
-              const encodedElements = item.getElementsByTagName("content:encoded");
-              if (encodedElements.length > 0) {
-                contentEl = encodedElements[0];
-              }
-            }
-            const content = contentEl?.textContent?.trim() || description;
-
-            // Extract publication date
-            const pubDateEl = item.querySelector("pubDate");
-            let published = new Date().toISOString();
-            if (pubDateEl?.textContent) {
-              try {
-                published = new Date(pubDateEl.textContent).toISOString();
-              } catch {
-                // Keep default if date parsing fails
-              }
-            }
-
-            // Extract author
-            const authorEl = item.querySelector("author") || 
-                           item.querySelector("dc\\:creator") ||
-                           item.querySelector("creator");
-            const author = authorEl?.textContent?.trim() || null;
-
-            // Extract image from various sources
-            let image = null;
-            
-            // Try media:content with namespace
-            let mediaElements = item.getElementsByTagName("media:content");
-            if (mediaElements.length > 0) {
-              image = mediaElements[0].getAttribute("url");
-            }
-            
-            // Try media:thumbnail with namespace
-            if (!image) {
-              mediaElements = item.getElementsByTagName("media:thumbnail");
-              if (mediaElements.length > 0) {
-                image = mediaElements[0].getAttribute("url");
-              }
-            }
-
-            // Try enclosure
-            if (!image) {
-              const enclosure = item.querySelector("enclosure[url]");
-              if (enclosure && enclosure.getAttribute("type")?.startsWith("image/")) {
-                image = enclosure.getAttribute("url");
-              }
-            }
-
-            // Upsert the article
-            if (!feed.id) {
-              logs.push(`Skipping article: feed missing ID`);
-              continue;
-            }
-
             const { error: insertError } = await supabase
               .from("news_articles")
               .upsert(
                 {
                   feed_id: feed.id,
-                  title,
-                  link,
-                  description,
-                  content,
-                  image,
+                  title: item.title,
+                  link: item.link,
+                  summary: item.description,
+                  image: item.image,
                   source: feed.source,
-                  author,
-                  published,
+                  published: item.published,
                   category: feed.category,
-                  is_published: true,
                 },
                 { onConflict: "link" }
               );
 
             if (insertError) {
-              logs.push(`Error inserting article "${title}": ${insertError.message}`);
+              logs.push(`Error inserting article "${item.title}": ${insertError.message}`);
             } else {
               feedArticlesAdded++;
             }
@@ -233,7 +202,7 @@ serve(async (req) => {
         await supabase
           .from("rss_feeds")
           .update({ 
-            fetch_errors: feed.fetch_errors ? feed.fetch_errors + 1 : 1,
+            fetch_errors: (feed.fetch_errors || 0) + 1,
             last_error: errorMsg
           })
           .eq("id", feed.id);
@@ -249,13 +218,7 @@ serve(async (req) => {
         articles_added: totalArticlesAdded,
         feeds_processed: feeds.length 
       }), 
-      {
-        status: 200,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Content-Type": "application/json",
-        },
-      }
+      { status: 200, headers: corsHeaders }
     );
 
   } catch (error) {
@@ -266,13 +229,7 @@ serve(async (req) => {
         error: String(error), 
         logs 
       }), 
-      {
-        status: 500,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Content-Type": "application/json",
-        },
-      }
+      { status: 500, headers: corsHeaders }
     );
   }
 });

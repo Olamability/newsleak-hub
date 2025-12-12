@@ -159,12 +159,12 @@ serve(async (req) => {
       }
     );
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error in sendNotification:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     return new Response(
       JSON.stringify({ 
-        error: error.message || 'Internal server error',
-        stack: error.stack 
+        error: errorMessage
       }),
       { 
         status: 500,
