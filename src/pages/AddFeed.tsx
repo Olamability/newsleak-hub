@@ -26,7 +26,7 @@ export default function AddFeed() {
     }
     setLoading(true);
     try {
-      await addFeed({ name, url, category, enabled: true }, user.id);
+      await addFeed({ name, url, category, enabled: true });
       navigate("/");
     } catch (err: any) {
       setError(err.message || "Failed to add feed.");

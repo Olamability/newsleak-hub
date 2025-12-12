@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabaseClient';
-import { loadNews } from '@/lib/newsStorage';
+import { loadNews, NewsArticle } from '@/lib/newsStorage';
 
 /**
  * Custom hook to fetch all news articles with caching
@@ -29,7 +29,7 @@ export function useArticle(id: string | undefined) {
       
       // Try to find in cached news first
       if (allNews) {
-        const found = allNews.find((article: any) => article.id === id);
+        const found = allNews.find((article) => article.id === id);
         if (found) return found;
       }
       
@@ -41,7 +41,7 @@ export function useArticle(id: string | undefined) {
         .single();
       
       if (error) throw error;
-      return data;
+      return data as NewsArticle;
     },
     enabled: !!id, // Only run query if id exists
     staleTime: 5 * 60 * 1000,
@@ -76,17 +76,10 @@ export function useEnrichedNews() {
   const error = newsError || feedsError;
 
   const enrichedNews = news.map(article => {
-    const feed = feeds.find((f: any) => f.id === article.feed_id);
+    const feed = feeds.find((f: any) => f.id === (article as any).feed_id);
     
     // Compute time string robustly
-    let time = '';
-    if (article.published) {
-      time = getTimeAgo(article.published);
-    } else if (article.pubDate) {
-      time = getTimeAgo(article.pubDate);
-    } else if (article.time) {
-      time = article.time;
-    }
+    const time = article.published ? getTimeAgo(article.published) : '';
 
     return {
       ...article,
@@ -94,9 +87,9 @@ export function useEnrichedNews() {
       favicon: (feed && feed.favicon) || article.favicon || '',
       category: article.category || (feed && feed.category) || "General",
       time,
-      likes: article.likes || 0,
-      comments: article.comments || 0,
-      content: article.summary || article.content || '',
+      likes: 0,
+      comments: 0,
+      content: article.summary || '',
       image: article.image || '',
     };
   });

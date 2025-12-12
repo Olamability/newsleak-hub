@@ -1,4 +1,4 @@
-import { supabase } from '../supabaseClient';
+import { supabase } from './supabaseClient';
 
 export async function likeArticle(articleId: string, userId: string): Promise<void> {
   await supabase.from('article_likes').insert({
